@@ -29,6 +29,10 @@ print(cursor.fetchall())
 cursor.close()
 conn.close()
 
+print("Welcome to SK Store")
+print("Enter 1 to Login in to the System")
+print("Enter 2 to Register")
+
 
 
 
