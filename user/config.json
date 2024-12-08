@@ -1,6 +1,6 @@
 {
     "host": "localhost",
-    "user": "root",
-    "password": "yourpassword",
+    "user": "admin",
+    "password": "Admin@123*",
     "database": "ecommerce"
 }
