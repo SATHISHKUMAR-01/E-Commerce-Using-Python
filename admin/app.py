@@ -9,36 +9,36 @@ with open('../config.json', 'r') as config_file:
 conn = mysql.connector.connect(**config)
 cursor = conn.cursor()
 
-class EMSAPP:
-    def addUser(self, details):
+class EMSVendor:
+    def addVendor(self, details):
         try:
             query = """
-            INSERT INTO user (name, email, dob, phone_number, password)
+            INSERT INTO vendor (name, company_name, email, phone_number, password)
             VALUES (%s, %s, %s, %s, %s)
             """
             cursor.execute(query, details)
             conn.commit()
-            print("\nUser registered successfully!")
+            print("\nVendor registered successfully!")
         except mysql.connector.Error as err:
             print(f"\nError: {err}")
             
-    def getUserInfo(self,email,password):
+    def getVendorInfo(self,email,password):
         try:
-            query = "SELECT * FROM user WHERE email = %s AND password = %s"
+            query = "SELECT * FROM vendor WHERE email = %s AND password = %s"
             cursor.execute(query, (email, password))
             user = cursor.fetchone()
 
             if user:
-                print("\nUser found! Welcome back.")
-                print("User Details: ", user)
+                print("\nVendor found! Welcome back.")
+                print("Vendor Details: ", user)
             else:
-                print("\nNo user found with the provided email and password.")
+                print("\nNo vendor found with the provided email and password.")
         
         except mysql.connector.Error as err:
             print(f"\nError: {err}")
 
-app = EMSAPP()
-print("Welcome to SK Store")
+app = EMSVendor()
+print("Welcome to SK Store - Vendor Page")
 print("\nEnter 1 to Login in to the System")
 print("Enter 2 to Register")
 
@@ -52,25 +52,17 @@ if (choice == 1):
     print("Enter the password : ", end = " ")
     password = input()
 
-    app.getUserInfo(email,password)
+    app.getVendorInfo(email,password)
 
 elif (choice == 2):
     details = []
 
-    print("\nEnter your Name  : ", end = " ")
+    print("\nEnter your name  : ", end = " ")
     name = input()
+    print("\nEnter your company name : ", end = " ")
+    company = input()
     print("Enter your email : ", end = " ")
     email = input()
-    print("Enter your DOB (DD/MM/YYYY) : ", end = " ")
-    dob = input()
-
-    # Reformat DOB to MySQL DATE format
-    try:
-        dob = datetime.strptime(dob, "%d/%m/%Y").strftime("%Y-%m-%d")
-    except ValueError:
-        print("\nError: Invalid date format. Please use DD/MM/YYYY.")
-        exit()
-
     print("Enter your phone number   : ", end = " ")
     phoneNum = input()
     print("Create your password      : ", end = " ")
@@ -86,17 +78,12 @@ elif (choice == 2):
         confirmPassword = input()
     
     print("\nVerify your details\n")
-    print("Name          :  ", name)
-    print("Email         :  ", email)
-    print("DOB           :  ", dob)
-    print("Phone Number  :  ", phoneNum)
+    print("Name                   :  ", name)
+    print("Email                  :  ", email)
+    print("Company Name           :  ", company)
+    print("Phone Number           :  ", phoneNum)
 
-    details.extend([name, email, dob, phoneNum, password])
+    details.extend([name, company, email, phoneNum, password])
 
-    app.addUser(details)
-    
-
-
-
-
+    app.addVendor(details)
     
