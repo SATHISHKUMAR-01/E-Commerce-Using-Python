@@ -49,7 +49,7 @@ if (choice == 1):
     print("\nEnter your email : ", end = " ")
     email = input()
 
-    print("Enter the password : ", end = " ")
+    print("\nEnter the password : ", end = " ")
     password = input()
 
     app.getUserInfo(email,password)
@@ -59,9 +59,9 @@ elif (choice == 2):
 
     print("\nEnter your Name  : ", end = " ")
     name = input()
-    print("Enter your email : ", end = " ")
+    print("\nEnter your email : ", end = " ")
     email = input()
-    print("Enter your DOB (DD/MM/YYYY) : ", end = " ")
+    print("\nEnter your DOB (DD/MM/YYYY) : ", end = " ")
     dob = input()
 
     # Reformat DOB to MySQL DATE format
@@ -71,18 +71,18 @@ elif (choice == 2):
         print("\nError: Invalid date format. Please use DD/MM/YYYY.")
         exit()
 
-    print("Enter your phone number   : ", end = " ")
+    print("\nEnter your phone number   : ", end = " ")
     phoneNum = input()
-    print("Create your password      : ", end = " ")
+    print("\nCreate your password      : ", end = " ")
     password = input()
-    print("Confirm your password     : ", end = " ")
+    print("\nConfirm your password     : ", end = " ")
     confirmPassword = input()
 
     while (password != confirmPassword):
         print("\n------ Password Mismatch!!! -----", end="\n")
-        print("Create your password      : ", end = " ")
+        print("\nCreate your password      : ", end = " ")
         password = input()
-        print("Confirm your password     : ", end = " ")
+        print("\nConfirm your password     : ", end = " ")
         confirmPassword = input()
     
     print("\nVerify your details\n")

@@ -2,6 +2,11 @@ import mysql.connector
 import json
 from datetime import datetime
 
+LOGIN = 1
+REGISTER = 2
+
+
+
 # # Load configuration
 with open('../config.json', 'r') as config_file:
     config = json.load(config_file)
@@ -29,13 +34,15 @@ class EMSVendor:
             user = cursor.fetchone()
 
             if user:
-                print("\nVendor found! Welcome back.")
-                print("Vendor Details: ", user)
+                print("\n<--------- Login Successful --------->\n")
+                return user
             else:
                 print("\nNo vendor found with the provided email and password.")
         
         except mysql.connector.Error as err:
             print(f"\nError: {err}")
+        
+        return [] 
 
 app = EMSVendor()
 print("Welcome to SK Store - Vendor Page")
@@ -45,36 +52,88 @@ print("Enter 2 to Register")
 print("\nEnter your choice : ", end = " ")
 choice = int(input())
 
-if (choice == 1):
+if (choice == LOGIN):
     print("\nEnter your email : ", end = " ")
     email = input()
 
-    print("Enter the password : ", end = " ")
+    print("\nEnter the password : ", end = " ")
     password = input()
 
-    app.getVendorInfo(email,password)
+    res = app.getVendorInfo(email,password)
 
-elif (choice == 2):
+    if (res):
+        print("\n<--------- Dashboard --------->\n")
+
+        options = [
+            "1. Add new product to the store",
+            "2. Update the product price/stock details",
+            "3. Delete product from the store",
+            "4. View products present in the store",
+            "5. Add Discount/Offer to the product",
+            "6. Delete Discount/Offer of the product",
+            "7. Update Discount/Offer of the products",
+            "8. View Discount/Offer of the products",
+            "9. View Sales Details",
+            "0. Exit"
+        ]
+
+        numOptions = len(options)
+
+        for option in options:
+            print(option)
+
+        print("\nEnter your choice of operation from the above : ", end = " ")
+        operation = int(input())
+
+        while (operation < 0 or operation > numOptions):
+            print("Invalid Choice !!!\n")
+            print("Enter your choice of operation from the above : ", end = " ")
+            operation = int(input())
+
+        
+        match operation:
+            case 1:
+                print("\n<--------- Add new product --------->\n")
+            case 2:
+                print("\n<--------- Update the product price/stock --------->\n")
+            case 3 :
+                print("\n<--------- Delete product --------->\n")
+            case 4 :
+                print("\n<--------- View products --------->\n")
+            case 5 :
+                print("\n<--------- Add Discount/Offer --------->\n")
+            case 6 :
+                print("\n<--------- Delete Discount/Offer --------->\n")
+            case 7 :
+                print("\n<--------- Update Discount/Offer --------->\n")
+            case 8 :
+                print("\n<--------- View Discount/Offer --------->\n")
+            case 9 :
+                print("\n<--------- View Sales Details --------->\n")
+            
+            
+
+elif (choice == REGISTER):
     details = []
 
     print("\nEnter your name  : ", end = " ")
     name = input()
     print("\nEnter your company name : ", end = " ")
     company = input()
-    print("Enter your email : ", end = " ")
+    print("\nEnter your email : ", end = " ")
     email = input()
-    print("Enter your phone number   : ", end = " ")
+    print("\nEnter your phone number   : ", end = " ")
     phoneNum = input()
-    print("Create your password      : ", end = " ")
+    print("\nCreate your password      : ", end = " ")
     password = input()
-    print("Confirm your password     : ", end = " ")
+    print("\nConfirm your password     : ", end = " ")
     confirmPassword = input()
 
     while (password != confirmPassword):
         print("\n------ Password Mismatch!!! -----", end="\n")
-        print("Create your password      : ", end = " ")
+        print("\nCreate your password      : ", end = " ")
         password = input()
-        print("Confirm your password     : ", end = " ")
+        print("\nConfirm your password     : ", end = " ")
         confirmPassword = input()
     
     print("\nVerify your details\n")
