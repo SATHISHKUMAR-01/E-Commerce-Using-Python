@@ -7,6 +7,9 @@ class Product:
 
     def addProduct(self, product_details):
         # Code to add a product
+        product_name = input()
+        product_company = input()
+        product_count = int(input())
         print("Product added successfully!")
 
     def updateProduct(self, product_id, updates):
@@ -19,7 +22,6 @@ class Product:
     
     def viewProduct(self):
         print(f"Product {product_id} Display!")
-
 
     def addOffer(self, offer_details):
         # Code to add a product
