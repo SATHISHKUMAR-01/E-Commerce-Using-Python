@@ -10,7 +10,7 @@ class Product:
         product_name = input()
         product_company = input()
         product_count = int(input())
-        print("Product added successfully!")
+        print("Product added successfully")
 
     def updateProduct(self, product_id, updates):
         # Code to update product details
