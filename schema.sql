@@ -15,3 +15,14 @@ CREATE TABLE vendor (
     phone_number VARCHAR(15) NOT NULL,
     password VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    company VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    sub_category VARCHAR(255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    weight DECIMAL(10,2) NOT NULL,
+    count INT NOT NULL
+);
