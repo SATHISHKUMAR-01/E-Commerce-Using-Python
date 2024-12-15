@@ -1,6 +1,7 @@
 import mysql.connector
 import json
 from datetime import datetime
+from product import Product
 
 LOGIN = 1
 REGISTER = 2
@@ -52,6 +53,8 @@ print("Enter 2 to Register")
 print("\nEnter your choice : ", end = " ")
 choice = int(input())
 
+product_app = Product(conn)
+
 if (choice == LOGIN):
     print("\nEnter your email : ", end = " ")
     email = input()
@@ -94,6 +97,7 @@ if (choice == LOGIN):
         match operation:
             case 1:
                 print("\n<--------- Add new product --------->\n")
+                product_app.addProduct()
             case 2:
                 print("\n<--------- Update the product price/stock --------->\n")
             case 3 :
