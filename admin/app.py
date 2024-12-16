@@ -104,6 +104,7 @@ if (choice == LOGIN):
                 print("\n<--------- Delete product --------->\n")
             case 4 :
                 print("\n<--------- View products --------->\n")
+                product_app.viewProduct()
             case 5 :
                 print("\n<--------- Add Discount/Offer --------->\n")
             case 6 :

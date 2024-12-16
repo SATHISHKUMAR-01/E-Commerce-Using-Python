@@ -53,7 +53,15 @@ class Product:
         print(f"Product {product_id} deleted!")
     
     def viewProduct(self):
-        print(f"Product {product_id} Display!")
+        
+        query = """
+            SELECT * FROM products
+            """
+        self.cursor.execute(query)
+        products =self.cursor.fetchall()
+
+        print(products)
+        
 
     def addOffer(self, offer_details):
         # Code to add a product
