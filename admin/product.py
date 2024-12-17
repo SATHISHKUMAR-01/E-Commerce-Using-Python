@@ -1,4 +1,5 @@
 import mysql.connector
+from prettytable import PrettyTable
 
 class Product:
     def __init__(self, conn):
@@ -60,7 +61,13 @@ class Product:
         self.cursor.execute(query)
         products =self.cursor.fetchall()
 
-        print(products)
+        table = PrettyTable()
+        table.field_names = ["ID", "Product Name", "Company", "Category", "Sub-category", "Price", "Weight", "Stock Count"]
+
+        for product in products:
+            table.add_row(product)
+
+        print(table)
         
 
     def addOffer(self, offer_details):
