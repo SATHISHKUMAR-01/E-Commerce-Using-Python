@@ -47,7 +47,7 @@ class Product:
 
     def updateProduct(self, product_id, updates):
         # Code to update product details
-        print(f"Product {product_id} updated!")
+        print(f"Enter the ID of the product")
 
     def deleteProduct(self, product_id):
         # Code to delete a product
