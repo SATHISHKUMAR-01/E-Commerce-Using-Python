@@ -48,6 +48,10 @@ class Product:
     def updateProduct(self, product_id, updates):
         # Code to update product details
         print(f"Enter the ID of the product")
+        print(f"If you dont know the product ID search for product name ")
+        print(f"Enter the product name : ")
+        name = input()
+        
 
     def deleteProduct(self, product_id):
         # Code to delete a product
