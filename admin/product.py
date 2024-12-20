@@ -1,5 +1,6 @@
 import mysql.connector
 from prettytable import PrettyTable
+from rapidfuzz import process
 
 class Product:
     def __init__(self, conn):
@@ -45,13 +46,40 @@ class Product:
         except ValueError:
             print("\nInvalid input. Please enter the correct values.")
 
-    def updateProduct(self, product_id, updates):
+    def updateProduct(self):
         # Code to update product details
         print(f"Enter the ID of the product")
         print(f"If you dont know the product ID search for product name ")
         print(f"Enter the product name : ")
         name = input()
-        
+
+        query = "SELECT id, name FROM products"
+        self.cursor.execute(query)
+        products = self.cursor.fetchall()  # List of tuples: [(id1, name1), (id2, name2), ...]
+
+        # Use fuzzy matching to find the best match for the entered name
+        product_names = {product[1]: product[0] for product in products}  # {name: id}
+        best_match, confidence, product_id = process.extractOne(name, product_names.items())
+
+        if confidence > 60:  # Only consider matches with high confidence
+            print(f"Best match found: '{best_match}' (Product ID: {product_id}) with confidence {confidence}%")
+            
+            # Proceed with updating the product details
+            print(f"Enter the new price: ", end="")
+            new_price = float(input())
+            
+            update_query = """
+                UPDATE products
+                SET price = %s
+                WHERE id = %s
+            """
+            self.cursor.execute(update_query, (new_price, product_id))
+            self.conn.commit()
+
+            print(f"Product '{best_match}' updated successfully!")
+        else:
+            print("No close match found. Please try again with a more accurate product name.")
+            
 
     def deleteProduct(self, product_id):
         # Code to delete a product

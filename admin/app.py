@@ -100,6 +100,7 @@ if (choice == LOGIN):
                 product_app.addProduct()
             case 2:
                 print("\n<--------- Update the product price/stock --------->\n")
+                product_app.updateProduct()
             case 3 :
                 print("\n<--------- Delete product --------->\n")
             case 4 :
