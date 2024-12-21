@@ -99,7 +99,7 @@ if (choice == LOGIN):
                 print("\n<--------- Add new product --------->\n")
                 product_app.addProduct()
             case 2:
-                print("\n<--------- Update the product price/stock --------->\n")
+                print("\n<--------- Update the product details --------->\n")
                 product_app.updateProduct()
             case 3 :
                 print("\n<--------- Delete product --------->\n")
