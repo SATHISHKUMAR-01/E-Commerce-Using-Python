@@ -94,28 +94,40 @@ if (choice == LOGIN):
             operation = int(input())
 
         
-        match operation:
-            case 1:
-                print("\n<--------- Add new product --------->\n")
-                product_app.addProduct()
-            case 2:
-                print("\n<--------- Update the product details --------->\n")
-                product_app.updateProduct()
-            case 3 :
-                print("\n<--------- Delete product --------->\n")
-            case 4 :
-                print("\n<--------- View products --------->\n")
-                product_app.viewProduct()
-            case 5 :
-                print("\n<--------- Add Discount/Offer --------->\n")
-            case 6 :
-                print("\n<--------- Delete Discount/Offer --------->\n")
-            case 7 :
-                print("\n<--------- Update Discount/Offer --------->\n")
-            case 8 :
-                print("\n<--------- View Discount/Offer --------->\n")
-            case 9 :
-                print("\n<--------- View Sales Details --------->\n")
+        while (operation != 0): 
+            match operation:
+                case 1:
+                    print("\n<--------- Add new product --------->\n")
+                    product_app.addProduct()
+                case 2:
+                    print("\n<--------- Update the product details --------->\n")
+                    product_app.updateProduct()
+                case 3 :
+                    print("\n<--------- Delete product --------->\n")
+                    product_app.deleteProduct()
+                case 4 :
+                    print("\n<--------- View products --------->\n")
+                    product_app.viewProduct()
+                case 5 :
+                    print("\n<--------- Add Discount/Offer --------->\n")
+                    product_app.addOffer()
+                case 6 :
+                    print("\n<--------- Delete Discount/Offer --------->\n")
+                    product_app.deleteOffer()
+                case 7 :
+                    print("\n<--------- Update Discount/Offer --------->\n")
+                    product_app.updateOffer()
+                case 8 :
+                    print("\n<--------- View Discount/Offer --------->\n")
+                    product_app.viewOffer()
+                case 9 :
+                    print("\n<--------- View Sales Details --------->\n")
+
+            for option in options:
+                print(option)
+
+            print("\nEnter your choice of operation from the above : ", end = " ")
+            operation = int(input())
             
             
 
