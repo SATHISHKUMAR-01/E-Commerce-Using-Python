@@ -6,6 +6,8 @@ class Product:
     def __init__(self, conn):
         self.conn = conn
         self.cursor = conn.cursor()
+        self.discount_code_buy_x_get_x = "D0001"
+        self.discout_code_flat_percent = "D0002"
 
     def addProduct(self):
         # Code to add product details
@@ -149,9 +151,81 @@ class Product:
         print(table)
 
     def addOffer(self):
-        # Code to add a product
-        print("Product added successfully!")
+        # Code to add offer to product
+        print("<--------- Search for the product to add offer (One product at a time) --------->\n")
+        self.search()
 
+        product = input("\nEnter the product ID : ")
+
+        print("\n<--------- Available Discount Options --------->\n")
+
+        discount_options = [
+            "1. Buy X Get Y Offer",
+            "2. Flat Discount for certain percentage"
+        ]
+
+        numOptions = len(discount_options)
+
+        for option in discount_options:
+            print(option)
+
+        operation  = int(input("\nWhat type of offer/discount, do you want to apply to the product : "))
+
+        while (operation < 1 or operation > numOptions):
+            print("Invalid Choice !!!\n")
+            print("Enter your choice of operation from the above : ", end = " ")
+            operation = int(input())
+
+        match operation:
+            case 1:
+                print("\n<--------- Add Buy X Get Y Offer --------->\n")
+                buy_x = int(input("Enter the buy quantity value : "))
+                get_x = int(input("\nEnter the get quantity value : "))
+                discount_code = self.discount_code_buy_x_get_x
+                flat_percentage = 0.00
+
+                query = """
+                INSERT INTO discount 
+                (product_id, discount_type, buy_val, get_val, flat_percentage)
+                VALUES (%s, %s, %s, %s, %s)
+                """
+                values = (
+                    product, 
+                    discount_code, 
+                    buy_x, 
+                    get_x, 
+                    flat_percentage
+                )
+
+                # Execute the query
+                self.cursor.execute(query, values)
+                self.conn.commit()
+            case 2:
+                print("\n<--------- Add Flat Discount for the product --------->\n")
+                buy_x = 0
+                get_x = 0
+                discount_code = self.discout_code_flat_percent
+                flat_percentage = float(input("\nEnter the discount percentage : "))
+                
+                query = """
+                INSERT INTO discount 
+                (product_id, discount_type, buy_val, get_val, flat_percentage)
+                VALUES (%s, %s, %s, %s, %s)
+                """
+                values = (
+                    product, 
+                    discount_code, 
+                    buy_x, 
+                    get_x, 
+                    flat_percentage
+                )
+
+                # Execute the query
+                self.cursor.execute(query, values)
+                self.conn.commit()
+
+        print("\n<---------Offer added to the product successfully --------->")
+    
     def updateOffer(self):
         # Code to update product details
         print(f"Product {product_id} updated!")
@@ -161,7 +235,22 @@ class Product:
         print(f"Product {product_id} deleted!")
     
     def viewOffer(self):
-        print(f"Product {product_id} Display!")
+        query = """
+            SELECT * FROM discount
+            """
+        self.cursor.execute(query)
+        products =self.cursor.fetchall()
+
+        # Dynamically fetch column names from the cursor description
+        columns = [desc[0] for desc in self.cursor.description]  # Extract column names
+
+        table = PrettyTable()
+        table.field_names = columns
+
+        for product in products:
+            table.add_row(product)
+
+        print(table)
 
     def update(self,new_value,column_name,table_name,product_id):
         try:
