@@ -56,14 +56,14 @@ choice = int(input())
 product_app = Product(conn)
 
 if (choice == LOGIN):
-    print("\nEnter your email : ", end = " ")
-    email = input()
+    # print("\nEnter your email : ", end = " ")
+    # email = input()
 
-    print("\nEnter the password : ", end = " ")
-    password = input()
+    # print("\nEnter the password : ", end = " ")
+    # password = input()
 
-    res = app.getVendorInfo(email,password)
-
+    # res = app.getVendorInfo(email,password)
+    res = True
     if (res):
         print("\n<--------- Dashboard --------->\n")
 
@@ -123,12 +123,17 @@ if (choice == LOGIN):
                 case 9 :
                     print("\n<--------- View Sales Details --------->\n")
 
-            for option in options:
-                print(option)
+            is_continue = input("\n\nDo you want to continue (y/n) : ")
+            print("\n")
+            if is_continue == 'y' or is_continue == 'Y':
+                for option in options:
+                    print(option)
 
-            print("\nEnter your choice of operation from the above : ", end = " ")
-            operation = int(input())
-            
+                print("\nEnter your choice of operation from the above : ", end = " ")
+                operation = int(input())
+            else:
+                operation = 0
+                print("\n<--------- Logged Out Successfully --------->\n")
             
 
 elif (choice == REGISTER):

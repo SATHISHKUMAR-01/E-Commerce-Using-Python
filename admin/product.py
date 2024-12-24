@@ -228,11 +228,113 @@ class Product:
     
     def updateOffer(self):
         # Code to update product details
-        print(f"Product {product_id} updated!")
+        print("Search for the product to which offer details are added")
 
+        self.search()
+
+        id = input("\nEnter the product id of the product : ")
+
+        print("\n<--------- Searching for the discount/offer of product ID ", id," --------->")
+
+        query = """
+                SELECT * FROM discount WHERE product_id = %s
+                """
+        self.cursor.execute(query, tuple(id))
+        offers = self.cursor.fetchall()
+
+        columns = [desc[0] for desc in self.cursor.description]
+
+        table = PrettyTable()
+        table.field_names = columns
+
+        for offer in offers:
+            table.add_row(offer)
+
+        print(table)
+
+        offer_id = input("\nEnter the discount id for which you need to update : ")
+
+        print("\n<--------- Selected Discount ID : ", offer_id, " --------->\n")
+
+        print("\n<--------- Which field you need to update --------->\n")
+
+        options = [
+            "1. Update the discount type",
+            "2. Update the buy value",
+            "3. Update the get value",
+            "4. Update the flat percentage",
+        ]
+
+        numOptions = len(options)
+
+        for option in options:
+            print(option)
+
+        print("\nEnter your choice of operation from the above : ", end = " ")
+        operation = int(input())
+
+        while (operation < 1 or operation > numOptions):
+            print("Invalid Choice !!!\n")
+            print("Enter your choice of operation from the above : ", end = " ")
+            operation = int(input())
+        
+        match operation:
+            case 1:
+                print("\n<--------- Update the discount type --------->\n")       
+                new_discount_type = input("Enter the new discount type (D0001/D0002) : ")
+                self.update(new_discount_type,"discount_type", "discount", offer_id)
+                   
+            case 2:
+                print("\n<--------- Update the buy value --------->\n")  
+                new_buy_val = input("Enter the new buy value : ")
+                self.update(new_buy_val,"buy_val", "discount", offer_id)
+                
+            case 3 :
+                print("\n<--------- Update the get value --------->\n")
+                new_get_val = int(input("Enter the new get value : "))
+                self.update(new_get_val,"get_val", "discount", offer_id)
+                
+            case 4 :
+                print("\n<--------- Update the flat percentage --------->\n")
+                new_percent = int(input("Enter the new flat percentage : "))
+                self.update(new_percent,"flat_percentage", "discount", offer_id)
+                
     def deleteOffer(self):
         # Code to delete a product
-        print(f"Product {product_id} deleted!")
+        print("Search for the product to which offer details are added")
+
+        self.search()
+
+        id = input("\nEnter the product id of the product : ")
+
+        print("\n<--------- Searching for the discount/offer of product ID ", id," --------->")
+
+        query = """
+                SELECT * FROM discount WHERE product_id = %s
+                """
+        self.cursor.execute(query, tuple(id))
+        offers = self.cursor.fetchall()
+
+        columns = [desc[0] for desc in self.cursor.description]
+
+        table = PrettyTable()
+        table.field_names = columns
+
+        for offer in offers:
+            table.add_row(offer)
+
+        print(table)
+
+        offer_id = input("\nEnter the discount id for which you need to delete : ")
+
+        print("\n<--------- Selected Discount ID : ", offer_id, " --------->\n")
+
+        confirmation = input(("\nAre you sure you want to delete this offer (y/n)? "))
+
+        if confirmation == 'y' or confirmation == 'Y':
+            self.delete("discount", "discount_id",  offer_id)
+        else:
+            print("<--------- Offer Delete Operation Failed --------->")
     
     def viewOffer(self):
         query = """
@@ -255,12 +357,17 @@ class Product:
     def update(self,new_value,column_name,table_name,product_id):
         try:
             # Dynamic query to update any column
-            update_query = f"UPDATE {table_name} SET {column_name} = %s WHERE id = %s"
+            update_query = ""
+            if table_name == "products":
+                update_query = f"UPDATE {table_name} SET {column_name} = %s WHERE id = %s"
+            elif table_name == "discount":
+                update_query = f"UPDATE {table_name} SET {column_name} = %s WHERE discount_id = %s"
+
             self.cursor.execute(update_query, (new_value, product_id))  # Pass values safely to prevent SQL injection
 
             # Commit the changes
             self.conn.commit()
-            print(f"\nProduct ID {product_id} updated successfully: {column_name} = {new_value}")
+            print(f"\nUpdated successfully: {column_name} = {new_value}")
         except Exception as e:
             print(f"Error updating product: {e}")
     
