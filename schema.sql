@@ -23,6 +23,23 @@ CREATE TABLE products (
     category VARCHAR(255) NOT NULL,
     sub_category VARCHAR(255) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    weight DECIMAL(10,2) NOT NULL,
     count INT NOT NULL
+);
+
+ALTER TABLE products
+DROP COLUMN weight;
+
+CREATE TABLE discount (
+    discount_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT, -- Foreign key reference to products table
+    discount_type VARCHAR(255) NOT NULL,
+    buy_val INT DEFAULT 0, -- Default value set to 0
+    get_val INT DEFAULT 0, -- Default value set to 0
+    flat_percentage DECIMAL(10,2) DEFAULT 0.00, -- Default value set to 0.00
+
+    -- Foreign key constraint
+    CONSTRAINT fk_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON DELETE CASCADE -- Ensures related discounts are deleted if product is deleted
 );

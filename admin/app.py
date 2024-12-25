@@ -1,6 +1,10 @@
 import mysql.connector
 import json
 from datetime import datetime
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from product import Product
 
 LOGIN = 1
@@ -9,7 +13,7 @@ REGISTER = 2
 
 
 # # Load configuration
-with open('../config.json', 'r') as config_file:
+with open('/Users/sathiska/Documents/python/E-Commerce-Using-Python/config.json', 'r') as config_file:
     config = json.load(config_file)
 
 conn = mysql.connector.connect(**config)
