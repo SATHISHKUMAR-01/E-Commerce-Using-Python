@@ -2,6 +2,12 @@ import mysql.connector
 import json
 from datetime import datetime
 from prettytable import PrettyTable
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from product import Product
+
 
 # # Load configuration
 with open('/Users/sathiska/Documents/python/E-Commerce-Using-Python/config.json', 'r') as config_file:
@@ -46,6 +52,9 @@ print("Enter 2 to Register")
 
 print("\nEnter your choice : ", end = " ")
 choice = int(input())
+
+
+product_app = Product(conn)
 
 if (choice == 1):
     # print("\nEnter your email : ", end = " ")
@@ -108,6 +117,8 @@ if (choice == 1):
         print("\n<--------- ", table_category," --------->\n")
         print(table)
 
+        search = input("\n\n<--------- Search for the product name which you need --------->\n")
+        product_app.search()
 
 elif (choice == 2):
     details = []

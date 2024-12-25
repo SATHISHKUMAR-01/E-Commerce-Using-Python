@@ -388,13 +388,13 @@ class Product:
         
         name = input("\nEnter the product name : ")
 
-        query = "SELECT id, name FROM products"
+        query = "SELECT id, name, company, price FROM products"
         self.cursor.execute(query)
         products = self.cursor.fetchall()  # List of tuples: [(id1, name1), (id2, name2), ...]
 
         # Use fuzzy matching to find the best match for the entered name
         product_names = {product[1]: product[0] for product in products}  # {name: id}
-        best_match = process.extract(name, product_names.keys(), score_cutoff=80)
+        best_match = process.extract(name, product_names.keys(), score_cutoff=60)
 
         if best_match:  # Only consider matches with high confidence
             print("\nResults Found : \n")
