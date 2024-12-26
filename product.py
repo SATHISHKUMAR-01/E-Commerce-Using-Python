@@ -384,27 +384,78 @@ class Product:
         except Exception as e:
             print(f"Error deleting product: {e}")
 
-    def search(self):
-        
-        name = input("\nEnter the product name : ")
+    def search(self, user=False):
+        try:
+            # Check and reconnect to database if not connected
+            if not self.conn.is_connected():
+                self.conn.reconnect(attempts=3, delay=2)
 
-        query = "SELECT id, name, company, price FROM products"
-        self.cursor.execute(query)
-        products = self.cursor.fetchall()  # List of tuples: [(id1, name1), (id2, name2), ...]
+            # Take product name input
+            name = input("\nEnter the product name: ").strip()
 
-        # Use fuzzy matching to find the best match for the entered name
-        product_names = {product[1]: product[0] for product in products}  # {name: id}
-        best_match = process.extract(name, product_names.keys(), score_cutoff=60)
+            # Define SQL query based on user type
+            query = (
+                "SELECT id, name, company, category, sub_category, price FROM products"
+                if user
+                else "SELECT id, name, company, category, sub_category, price, count FROM products"
+            )
 
-        if best_match:  # Only consider matches with high confidence
-            print("\nResults Found : \n")
-            for idx, match in enumerate(best_match, 1):
-                matched_name, confidence, _ = match
-                matched_id = product_names[matched_name]
-                print(f"{matched_name}  (Product ID: {matched_id})")
+            # Reinitialize the cursor
+            self.cursor.close()
+            self.cursor = self.conn.cursor()
 
-        else:
-            print("No product found. Please try again !!!")
-            
+            # Execute query and fetch products
+            self.cursor.execute(query)
+            products = self.cursor.fetchall()
 
+            # Map product details for fuzzy matching
+            product_details = {
+                "|".join(map(str, product[1:])): product[0] for product in products
+            }
 
+            # Extract product keys for fuzzy matching
+            concatenated_keys = list(product_details.keys())
+
+            # Use `rapidfuzz` for fuzzy matching
+            best_match = process.extract(name, concatenated_keys, score_cutoff=60)
+
+            # Check if matches are found
+            if best_match:
+                print("\nResults Found:\n")
+                table = PrettyTable()
+
+                for idx, match in enumerate(best_match, 1):
+                    matched_name, confidence = match[0], match[1]
+
+                    # Fetch product ID using matched name
+                    product_id = product_details[matched_name]
+
+                    # Split details into fields
+                    product_info = matched_name.split('|')
+
+                    # Format labels for display
+                    labels = [
+                        f"Company      : {product_info[1]}",
+                        f"Category     : {product_info[2]}",
+                        f"Sub Category : {product_info[3]}",
+                        f"Price        : {product_info[4]}",
+                    ]
+
+                    # Add Stock Count for admin view
+                    if not user:
+                        labels.append(f"Stock Count  : {product_info[5]}")
+
+                    # Add Product ID
+                    labels.append(f"Product ID   : {product_id}")
+
+                    # Add product details as a column in the table
+                    table.add_column(f"Product {idx}", labels)
+
+                # Print table
+                print(table)
+
+            else:
+                print("\nNo product found. Please try again!!!")
+
+        except Exception as e:
+            print(f"\nError during search: {e}")

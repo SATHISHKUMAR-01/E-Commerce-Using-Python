@@ -46,6 +46,7 @@ class EMSAPP:
         return False
 
 app = EMSAPP()
+product_app = Product(conn)
 print("Welcome to SK Store")
 print("\nEnter 1 to Login in to the System")
 print("Enter 2 to Register")
@@ -54,7 +55,7 @@ print("\nEnter your choice : ", end = " ")
 choice = int(input())
 
 
-product_app = Product(conn)
+
 
 if (choice == 1):
     # print("\nEnter your email : ", end = " ")
@@ -117,8 +118,21 @@ if (choice == 1):
         print("\n<--------- ", table_category," --------->\n")
         print(table)
 
-        search = input("\n\n<--------- Search for the product name which you need --------->\n")
-        product_app.search()
+        print("\n\n<--------- Search for the product name which you need --------->\n")
+        try:
+            product_app.search(True)
+
+            product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
+
+            query = """
+                SELECT * from products where id = %s
+            """
+            cursor.execute(query, tuple(product_id))
+            selected_product = cursor.fetchone()
+            print(selected_product)
+
+        except Exception as e:
+            print(f"Error during search: {e}")
 
 elif (choice == 2):
     details = []
