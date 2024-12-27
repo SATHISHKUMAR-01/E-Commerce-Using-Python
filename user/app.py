@@ -129,7 +129,40 @@ if (choice == 1):
             """
             cursor.execute(query, tuple(product_id))
             selected_product = cursor.fetchone()
-            print(selected_product)
+            
+            selected_table = PrettyTable()
+
+            column_title = selected_product[1]
+            product_details = [str(selected_product[i]) for i in range(2, len(selected_product))]
+            selected_table.add_column(column_title, product_details)
+            print("\n",selected_table)
+            actions = ["Add to Cart", "Add to Wishlist", "Buy now"]
+
+            action_table = PrettyTable()
+            action_table.field_names = ["Options"] 
+            for action in actions:
+                action_table.add_row([action])
+            print(action_table)
+
+            product_options = [
+                "Enter 1 to buy the product",
+                "Enter 2 to add product to cart",
+                "Enter 3 to add product to wishlist",
+                "Enter 4 to add review comments",
+                "Enter 5 to see reviews of the product",
+                "Enter 6 to Exit"
+            ]
+
+            num_product_options = len(product_options)
+
+            print("\n")
+            for product_option in product_options:
+                print("---------> ",product_option)
+            print("\n")
+
+            user_options = int(input("\nEnter your choice : "))
+            product_app.product_operations(user_options)
+
 
         except Exception as e:
             print(f"Error during search: {e}")

@@ -449,7 +449,7 @@ class Product:
                     labels.append(f"Product ID   : {product_id}")
 
                     # Add product details as a column in the table
-                    table.add_column(f"Product {idx}", labels)
+                    table.add_column(product_info[0], labels)
 
                 # Print table
                 print(table)
@@ -459,3 +459,6 @@ class Product:
 
         except Exception as e:
             print(f"\nError during search: {e}")
+
+    def product_operations(self, user_options):
+        pass
