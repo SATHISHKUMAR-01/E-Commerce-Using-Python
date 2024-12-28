@@ -460,5 +460,91 @@ class Product:
         except Exception as e:
             print(f"\nError during search: {e}")
 
-    def product_operations(self, user_options):
-        pass
+    def product_operations(self, user_options, product_id, user_id):
+        
+        if (user_options == 1):
+            # Code to buy the product
+            count = int(input("\nAdd the number of products you want to add to buy : "))
+            pass
+        elif(user_options == 2):
+            # Code to add the product to cart
+            count = int(input("\nAdd the number of products you want to add to cart : "))
+
+            query = """
+            INSERT INTO cart (product_id, user_id, count)
+            VALUES (%s, %s, %s)
+            """
+            self.cursor.execute(query, [product_id, user_id, count])
+            self.conn.commit()
+            print("\n<--------- Product added to cart successfully! --------->\n")
+        elif(user_options == 3):
+            # Code to add the product to wishlist
+            count = int(input("\nAdd the number of products you want to add to wishlist : "))
+
+            query = """
+            INSERT INTO wishlist (product_id, user_id, count)
+            VALUES (%s, %s, %s)
+            """
+            self.cursor.execute(query, [product_id, user_id, count])
+            self.conn.commit()
+            print("\n<--------- Product added to wishlist successfully! --------->\n")
+            
+        elif(user_options == 4):
+            # Code to add review comments
+            print("\nAdd review to the product\n")
+
+            comments = input("\nAdd your comments : ")
+
+            # Input validation for rating
+            while True:
+                try:
+                    rating = int(input("\nAdd your rating to the product (out of 5): "))
+                    if 1 <= rating <= 5:  # Ensure rating is between 1 and 5
+                        break
+                    else:
+                        print("\nInvalid rating! Please enter a value between 1 and 5.")
+                except ValueError:
+                    print("\nInvalid input! Please enter a number between 1 and 5.")
+            print("\n<--------- Your Feedback --------->\n")
+            print("Comment  : ", comments)
+            print("Rating   : ", rating)
+
+            proceed = input("\nEnter y/Y to add comments : ")
+
+            if (proceed == 'y' or proceed == 'Y'):
+                query = """
+                INSERT INTO review (product_id, user_id, comments, rating)
+                VALUES (%s, %s, %s, %s)
+                """
+                self.cursor.execute(query, [product_id, user_id, comments, rating])
+                self.conn.commit()
+                print("\n<--------- Review added successfully! --------->\n")
+            else:
+                print("\n<--------- Review failed! --------->\n")
+            
+        elif(user_options == 5):
+            # Code to see review comments of the product
+            query = """
+                SELECT r.comments, r.rating, r.timestamp, u.name AS user_name
+                FROM review r
+                JOIN user u ON r.user_id = u.id
+                WHERE r.product_id = %s
+                ORDER BY r.timestamp DESC
+            """
+            self.cursor.execute(query, (product_id,))
+            reviews = self.cursor.fetchall()
+
+            if reviews:
+                print("\n<--------- Reviews --------->\n")
+                print("\n<--------------------------->\n")
+                for review in reviews:
+                    print(f"User      : {review[3]}")
+                    print(f"Comment   : {review[0]}")
+                    print(f"Rating    : {review[1]}")
+                    print(f"Timestamp : {review[2]}\n")
+                    print("\n<--------------------------->\n")
+            else:
+                print("\nNo reviews available for this product.\n")
+        else:
+            # Code to exit
+            pass

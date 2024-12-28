@@ -34,10 +34,9 @@ class EMSAPP:
             query = "SELECT * FROM user WHERE email = %s AND password = %s"
             cursor.execute(query, (email, password))
             user = cursor.fetchone()
-
             if user:
                 print("\nUser found! Welcome back.")
-                return True
+                return user[0]
             else:
                 print("\nNo user found with the provided email and password.")
         
@@ -54,9 +53,6 @@ print("Enter 2 to Register")
 print("\nEnter your choice : ", end = " ")
 choice = int(input())
 
-
-
-
 if (choice == 1):
     # print("\nEnter your email : ", end = " ")
     # email = input()
@@ -65,7 +61,7 @@ if (choice == 1):
     # password = input()
 
     # res = app.getUserInfo(email,password)
-    res = True
+    res = 1
     if (res):
         print("\n<---------  Main Dashboard --------->\n")
 
@@ -127,7 +123,7 @@ if (choice == 1):
             query = """
                 SELECT * from products where id = %s
             """
-            cursor.execute(query, tuple(product_id))
+            cursor.execute(query, (product_id,))
             selected_product = cursor.fetchone()
             
             selected_table = PrettyTable()
@@ -135,7 +131,7 @@ if (choice == 1):
             column_title = selected_product[1]
             product_details = [str(selected_product[i]) for i in range(2, len(selected_product))]
             selected_table.add_column(column_title, product_details)
-            print("\n",selected_table)
+            
             actions = ["Add to Cart", "Add to Wishlist", "Buy now"]
 
             action_table = PrettyTable()
@@ -161,9 +157,7 @@ if (choice == 1):
             print("\n")
 
             user_options = int(input("\nEnter your choice : "))
-            product_app.product_operations(user_options)
-
-
+            product_app.product_operations(user_options,product_id,res)
         except Exception as e:
             print(f"Error during search: {e}")
 

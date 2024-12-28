@@ -43,3 +43,60 @@ CREATE TABLE discount (
         REFERENCES products(id)
         ON DELETE CASCADE -- Ensures related discounts are deleted if product is deleted
 );
+
+CREATE TABLE cart (
+    cart_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT, -- Foreign key reference to products table
+    user_id INT, -- Foreign key reference to user table
+    count INT DEFAULT 1, -- Default value set to 1
+
+    -- Foreign key constraints
+    CONSTRAINT fk_products
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON DELETE CASCADE, -- Comma added here
+
+    CONSTRAINT fk_user
+        FOREIGN KEY (user_id)
+        REFERENCES user(id)
+        ON DELETE CASCADE -- No comma here (last line)
+);
+
+CREATE TABLE wishlist (
+    wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT, -- Foreign key reference to products table
+    user_id INT, -- Foreign key reference to user table
+    count INT DEFAULT 1, -- Default value set to 1
+
+    -- Foreign key constraints
+    CONSTRAINT fk_wishlist
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON DELETE CASCADE, -- Comma added here
+
+    CONSTRAINT fk_users
+        FOREIGN KEY (user_id)
+        REFERENCES user(id)
+        ON DELETE CASCADE -- No comma here (last line)
+);
+
+CREATE TABLE review (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT, -- Foreign key reference to products table
+    user_id INT, -- Foreign key reference to users table
+    comments VARCHAR(255) NOT NULL,
+    rating INT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Use TIMESTAMP with default value
+
+    -- Foreign key constraints
+    CONSTRAINT fk_review_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON DELETE CASCADE, -- <-- Added comma here
+
+    CONSTRAINT fk_review_users
+        FOREIGN KEY (user_id)
+        REFERENCES user(id)
+        ON DELETE CASCADE -- No comma here (last line)
+);
+
