@@ -20,8 +20,8 @@ class EMSAPP:
     def addUser(self, details):
         try:
             query = """
-            INSERT INTO user (name, email, dob, phone_number, password)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO user (name, email, dob, phone_number, password, address, city, state, pincode)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(query, details)
             conn.commit()
@@ -54,13 +54,13 @@ print("\nEnter your choice : ", end = " ")
 choice = int(input())
 
 if (choice == 1):
-    # print("\nEnter your email : ", end = " ")
-    # email = input()
+    print("\nEnter your email : ", end = " ")
+    email = input()
 
-    # print("\nEnter the password : ", end = " ")
-    # password = input()
+    print("\nEnter the password : ", end = " ")
+    password = input()
 
-    # res = app.getUserInfo(email,password)
+    res = app.getUserInfo(email,password)
     res = 1
     if (res):
         print("\n<---------  Main Dashboard --------->\n")
@@ -191,14 +191,23 @@ elif (choice == 2):
         password = input()
         print("\nConfirm your password     : ", end = " ")
         confirmPassword = input()
+
+    address = input("\nEnter your address (Flat/Building Number, Street Name, Area) : ")
+    city = input("\nEnter your city : ")
+    state = input("\nEnter your state : ")
+    pincode = input("\nEnter your pincode : ")
     
-    print("\nVerify your details\n")
+    print("\n<--------- Verify your details --------->\n")
     print("Name          :  ", name)
     print("Email         :  ", email)
     print("DOB           :  ", dob)
     print("Phone Number  :  ", phoneNum)
+    print("Address       :  ", address)
+    print("City          :  ", city)
+    print("State         :  ", state)
+    print("Pincode       :  ", pincode)
 
-    details.extend([name, email, dob, phoneNum, password])
+    details.extend([name, email, dob, phoneNum, password, address, city, state, pincode])
 
     app.addUser(details)
     

@@ -464,8 +464,27 @@ class Product:
         
         if (user_options == 1):
             # Code to buy the product
-            count = int(input("\nAdd the number of products you want to add to buy : "))
-            pass
+            count = int(input("\nAdd the number of products you want to buy : "))
+
+            print("<--------- Confirm your delivery address --------->")
+
+            query = """
+            SELECT address, city, state, pincode from user where id = %s
+            """
+            self.cursor.execute(query, (user_id))
+            location_details = self.cursor.fetchone()
+
+            print("Address : ", location_details[0])
+            print("City    : ", location_details[1])
+            print("State   : ", location_details[2])
+            print("PinCode : ", location_details[3])
+
+            confirmation_location = input("Enter y/Y to continue for payment, if there is any change in address, Enter n/N : ")
+
+            if confirmation_location == 'y' or confirmation_location == 'Y':
+                pass
+            else:
+                pass
         elif(user_options == 2):
             # Code to add the product to cart
             count = int(input("\nAdd the number of products you want to add to cart : "))
