@@ -54,14 +54,14 @@ print("\nEnter your choice : ", end = " ")
 choice = int(input())
 
 if (choice == 1):
-    print("\nEnter your email : ", end = " ")
-    email = input()
+    # print("\nEnter your email : ", end = " ")
+    # email = input()
 
-    print("\nEnter the password : ", end = " ")
-    password = input()
+    # print("\nEnter the password : ", end = " ")
+    # password = input()
 
-    res = app.getUserInfo(email,password)
-    res = 1
+    # res = app.getUserInfo(email,password)
+    res = 2
     if (res):
         print("\n<---------  Main Dashboard --------->\n")
 

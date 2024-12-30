@@ -466,12 +466,12 @@ class Product:
             # Code to buy the product
             count = int(input("\nAdd the number of products you want to buy : "))
 
-            print("<--------- Confirm your delivery address --------->")
+            print("\n<--------- Confirm your delivery address --------->\n")
 
             query = """
             SELECT address, city, state, pincode from user where id = %s
             """
-            self.cursor.execute(query, (user_id))
+            self.cursor.execute(query, (user_id,))
             location_details = self.cursor.fetchone()
 
             print("Address : ", location_details[0])
@@ -479,12 +479,35 @@ class Product:
             print("State   : ", location_details[2])
             print("PinCode : ", location_details[3])
 
-            confirmation_location = input("Enter y/Y to continue for payment, if there is any change in address, Enter n/N : ")
+            confirmation_location = input("\nEnter y/Y to continue for payment, if there is any change in address, Enter n/N : ")
 
-            if confirmation_location == 'y' or confirmation_location == 'Y':
-                pass
-            else:
-                pass
+            if confirmation_location == 'n' or confirmation_location == 'N':
+                while(True):
+                    delivery_address = input("\nEnter the delivery address (Flat/Building No, Street, Area name) : ")
+                    delivery_city    = input("\nEnter the city    : ")
+                    delivery_state   = input("\nEnter the state   : ")
+                    delivery_pincode = input("\nEnter the pincode : ")
+
+                    print("<--------- Confirm your delivery address --------->")
+                    print("Address : ", delivery_address)
+                    print("City    : ", delivery_city)
+                    print("State   : ", delivery_state)
+                    print("PinCode : ", delivery_pincode)
+
+                    confirmation_location = input("\nEnter y/Y to continue for payment, if there is any change in address, Enter n/N : ")
+                    if confirmation_location == 'n' or confirmation_location == 'N':
+                        break
+            
+            query = """
+            SELECT price from products where id = %s
+            """
+            self.cursor.execute(query, (product_id,))
+            product_price = self.cursor.fetchone()
+            price = float(product_price[0])
+            tot_amt = count * price
+
+            print("\n<---------Total Amount : ",tot_amt," --------->")
+            
         elif(user_options == 2):
             # Code to add the product to cart
             count = int(input("\nAdd the number of products you want to add to cart : "))
