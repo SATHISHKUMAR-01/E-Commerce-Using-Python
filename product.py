@@ -1,6 +1,9 @@
 import mysql.connector
 from prettytable import PrettyTable
 from rapidfuzz import process
+from wallet import Wallet
+import random
+import string
 
 class Product:
     def __init__(self, conn):
@@ -8,7 +11,14 @@ class Product:
         self.cursor = conn.cursor()
         self.discount_code_buy_x_get_x = "D0001"
         self.discout_code_flat_percent = "D0002"
+        self.wallet_app = Wallet(conn)
 
+    def generate_order_id(self, length=15):
+        # Generate a random string with uppercase letters and digits
+        characters = string.ascii_uppercase + string.digits
+        order_id = ''.join(random.choices(characters, k=length))
+        return order_id
+    
     def addProduct(self):
         # Code to add product details
         try:        
@@ -469,15 +479,22 @@ class Product:
             print("\n<--------- Confirm your delivery address --------->\n")
 
             query = """
-            SELECT address, city, state, pincode from user where id = %s
+            SELECT address, city, state, pincode, name, phone_number from user where id = %s
             """
             self.cursor.execute(query, (user_id,))
             location_details = self.cursor.fetchone()
 
-            print("Address : ", location_details[0])
-            print("City    : ", location_details[1])
-            print("State   : ", location_details[2])
-            print("PinCode : ", location_details[3])
+            delivery_address = location_details[0]
+            delivery_city    = location_details[1]
+            delivery_state   = location_details[2]
+            delivery_pincode = location_details[3]
+            user_name = location_details[4]
+            phone_number = location_details[5]
+
+            print("Address : ", delivery_address)
+            print("City    : ", delivery_city)
+            print("State   : ", delivery_state)
+            print("PinCode : ", delivery_pincode)
 
             confirmation_location = input("\nEnter y/Y to continue for payment, if there is any change in address, Enter n/N : ")
 
@@ -506,8 +523,65 @@ class Product:
             price = float(product_price[0])
             tot_amt = count * price
 
-            print("\n<---------Total Amount : ",tot_amt," --------->")
+            print("\n<--------- Total Amount : ",tot_amt," --------->\n")
             
+            print("\n<--------- Payment in progress... --------->\n")
+
+            payment_completed = False
+
+            while(not payment_completed):
+
+                query = """
+                SELECT wallet_id, amount from wallet where user_id = %s
+                """
+                self.cursor.execute(query, (user_id,))
+                wallet_details = self.cursor.fetchone()
+            
+                if (not wallet_details):
+                    print("\n<--------- Wallet details not found.  Create a new one! --------->\n")
+                    self.wallet_app.create_wallet(user_id)
+
+                wallet_id = str(wallet_details[0])
+                wallet_amount = float(wallet_details[1])
+
+                if (wallet_amount < tot_amt):
+                    print ("\n<--------- Insufficient Balance --------->\n")
+
+                    print("\nWallet Balance : ", wallet_amount)
+                    
+                    op = input("\nDo you want to recharge your wallet now (y/n) : ")
+
+                    if (op == 'Y' or op == 'y'):
+                        self.wallet_app.recharge_wallet(wallet_amount, wallet_id)
+                    else :
+                        payment_completed = True
+                        print("<--------- Payment failed !!! --------->\n")
+
+                else :
+                    update_balance = wallet_amount - tot_amt
+
+                    self.wallet_app.deduct_amt_from_wallet(wallet_id, update_balance)
+
+                    payment_completed = True
+
+                    print("<--------- Payment Successfull, Order Placed !!! --------->\n")
+
+                    order_id  = self.generate_order_id()
+
+                    query = """
+                    INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """
+                    self.cursor.execute(query, [order_id, user_id, tot_amt, "Pending", "Completed"])
+                    self.conn.commit()
+
+                    query = """
+                    INSERT INTO shipping_address (order_id, name, phone_number, state, city, pincode, address)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """
+                    self.cursor.execute(query, [order_id, user_name, phone_number, delivery_state, delivery_city, delivery_pincode, delivery_address])
+                    self.conn.commit()
+
         elif(user_options == 2):
             # Code to add the product to cart
             count = int(input("\nAdd the number of products you want to add to cart : "))
@@ -519,6 +593,7 @@ class Product:
             self.cursor.execute(query, [product_id, user_id, count])
             self.conn.commit()
             print("\n<--------- Product added to cart successfully! --------->\n")
+            
         elif(user_options == 3):
             # Code to add the product to wishlist
             count = int(input("\nAdd the number of products you want to add to wishlist : "))

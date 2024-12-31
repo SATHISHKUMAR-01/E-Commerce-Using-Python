@@ -106,3 +106,42 @@ ADD COLUMN state VARCHAR(100) NOT NULL,
 ADD COLUMN city VARCHAR(100) NOT NULL,
 ADD COLUMN pincode VARCHAR(10) NOT NULL,
 ADD COLUMN address VARCHAR(500) NOT NULL;
+
+
+CREATE TABLE shipping_address (
+    order_id VARCHAR(30), -- Reference to Orders table
+    name VARCHAR(255) NOT NULL, -- Recipient name
+    phone_number VARCHAR(15) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    pincode VARCHAR(10) NOT NULL,
+    address VARCHAR(500) NOT NULL,
+    is_gift BOOLEAN DEFAULT FALSE, -- True if buying for someone else
+
+    -- Foreign Key Constraint
+    CONSTRAINT fk_shipping_address_order
+        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
+
+CREATE TABLE orders (
+    order_id VARCHAR(30) PRIMARY KEY,
+    user_id INT, -- Buyer user ID
+    total_amount DECIMAL(10, 2) NOT NULL,
+    order_status VARCHAR(50) DEFAULT 'Pending',
+    payment_status VARCHAR(50) DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Key Constraint
+    CONSTRAINT fk_orders_user
+        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+CREATE TABLE wallet (
+    wallet_id VARCHAR(50) PRIMARY KEY,
+    user_id INT, -- Buyer user ID
+    amount DECIMAL(10, 2) NOT NULL,
+    
+    CONSTRAINT fk_wallet_user
+        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);

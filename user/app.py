@@ -5,9 +5,8 @@ from prettytable import PrettyTable
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 from product import Product
-
+from wallet import Wallet
 
 # # Load configuration
 with open('/Users/sathiska/Documents/python/E-Commerce-Using-Python/config.json', 'r') as config_file:
@@ -44,25 +43,7 @@ class EMSAPP:
             print(f"\nError: {err}")
         return False
 
-app = EMSAPP()
-product_app = Product(conn)
-print("Welcome to SK Store")
-print("\nEnter 1 to Login in to the System")
-print("Enter 2 to Register")
-
-print("\nEnter your choice : ", end = " ")
-choice = int(input())
-
-if (choice == 1):
-    # print("\nEnter your email : ", end = " ")
-    # email = input()
-
-    # print("\nEnter the password : ", end = " ")
-    # password = input()
-
-    # res = app.getUserInfo(email,password)
-    res = 2
-    if (res):
+    def main_dashboard(self,user_id):
         print("\n<---------  Main Dashboard --------->\n")
 
         query = """
@@ -146,10 +127,11 @@ if (choice == 1):
                 "Enter 3 to add product to wishlist",
                 "Enter 4 to add review comments",
                 "Enter 5 to see reviews of the product",
-                "Enter 6 to Exit"
+                "Enter 6 to view cart",
+                "Enter 7 to view orders",
+                "Enter 8 to view wishlist",
+                "Enter 0 to Exit"
             ]
-
-            num_product_options = len(product_options)
 
             print("\n")
             for product_option in product_options:
@@ -157,9 +139,31 @@ if (choice == 1):
             print("\n")
 
             user_options = int(input("\nEnter your choice : "))
-            product_app.product_operations(user_options,product_id,res)
+            product_app.product_operations(user_options,product_id,user_id)
         except Exception as e:
             print(f"Error during search: {e}")
+
+app = EMSAPP()
+product_app = Product(conn)
+wallet_app = Wallet(conn)
+print("Welcome to SK Store")
+print("\nEnter 1 to Login in to the System")
+print("Enter 2 to Register")
+
+print("\nEnter your choice : ", end = " ")
+choice = int(input())
+
+if (choice == 1):
+    print("\nEnter your email : ", end = " ")
+    email = input()
+
+    print("\nEnter the password : ", end = " ")
+    password = input()
+
+    res = app.getUserInfo(email,password)
+    
+    if (res):
+        app.main_dashboard(res)
 
 elif (choice == 2):
     details = []
@@ -210,9 +214,20 @@ elif (choice == 2):
     details.extend([name, email, dob, phoneNum, password, address, city, state, pincode])
 
     app.addUser(details)
+
+    query = """
+            SELECT id from users where email = %s and phone_number = %s
+            """
+    cursor.execute(query, (email,phoneNum,))
+    user_id = cursor.fetchone()
+    user_id = user_id[0]
+
+    print("\n<--------- Add money to your E-Wallet and Enjoy Shopping !!! --------->\n")
+
+    opinion = input("Do you want add money to your wallet now ? Enter y/Y to continue, Enter n/N to skip : ")
+
+    if opinion == 'y' or opinion == 'Y':
+        wallet_app.create_wallet(user_id)
     
-
-
-
-
-    
+    app.main_dashboard(user_id)
+        
