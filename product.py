@@ -665,3 +665,25 @@ class Product:
         else:
             # Code to exit
             pass
+
+    def view_product(self,product_id):
+        query = """
+                SELECT * from products where id = %s
+            """
+        self.cursor.execute(query, (product_id,))
+        selected_product = self.cursor.fetchone()
+        
+        selected_table = PrettyTable()
+        column_title = selected_product[1]
+        product_details = [str(selected_product[i]) for i in range(2, len(selected_product) - 1 )]
+        selected_table.add_column(column_title, product_details)
+        print(selected_table)
+    
+    def product_actions(self):
+        actions = ["Add to Cart", "Add to Wishlist", "Buy now"]
+
+        action_table = PrettyTable()
+        action_table.field_names = ["Options"] 
+        for action in actions:
+            action_table.add_row([action])
+        print(action_table)

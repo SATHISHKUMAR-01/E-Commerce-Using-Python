@@ -95,51 +95,65 @@ class EMSAPP:
         print("\n<--------- ", table_category," --------->\n")
         print(table)
 
-        print("\n\n<--------- Search for the product name which you need --------->\n")
         try:
-            product_app.search(True)
 
-            product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
-
-            query = """
-                SELECT * from products where id = %s
-            """
-            cursor.execute(query, (product_id,))
-            selected_product = cursor.fetchone()
-            
-            selected_table = PrettyTable()
-
-            column_title = selected_product[1]
-            product_details = [str(selected_product[i]) for i in range(2, len(selected_product))]
-            selected_table.add_column(column_title, product_details)
-            
-            actions = ["Add to Cart", "Add to Wishlist", "Buy now"]
-
-            action_table = PrettyTable()
-            action_table.field_names = ["Options"] 
-            for action in actions:
-                action_table.add_row([action])
-            print(action_table)
-
-            product_options = [
-                "Enter 1 to buy the product",
-                "Enter 2 to add product to cart",
-                "Enter 3 to add product to wishlist",
-                "Enter 4 to add review comments",
-                "Enter 5 to see reviews of the product",
-                "Enter 6 to view cart",
-                "Enter 7 to view orders",
-                "Enter 8 to view wishlist",
-                "Enter 0 to Exit"
+            product_actions = [
+                "Enter 1 to view cart",
+                "Enter 2 to view orders",
+                "Enter 3 to view wishlist",
+                "Enter 0 to go for search"
             ]
 
             print("\n")
-            for product_option in product_options:
-                print("---------> ",product_option)
+            for product_action in product_actions:
+                print("---------> ",product_action)
             print("\n")
 
-            user_options = int(input("\nEnter your choice : "))
-            product_app.product_operations(user_options,product_id,user_id)
+            product_action_choice  = int(input("Enter your choice : "))
+
+            if product_action_choice == 1:
+                
+                query = """
+                SELECT * from cart where user_id = %s
+                """
+                
+                cursor.execute(query, (user_id, ))
+                cart_list = cursor.fetchall()
+
+                for items in cart_list:
+                    with conn.cursor() as new_cursor:
+                        product_app.view_product(items[1])
+
+            elif product_action_choice == 2:
+                pass
+            elif product_action_choice == 3:
+                pass
+            elif product_action_choice == 0:
+                print("\n\n<--------- Search for the product name which you need --------->\n")
+
+                product_app.search(True)
+
+                product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
+
+                product_app.view_product(product_id)
+                product_app.product_actions()
+
+                product_options = [
+                    "Enter 1 to buy the product",
+                    "Enter 2 to add product to cart",
+                    "Enter 3 to add product to wishlist",
+                    "Enter 4 to add review comments",
+                    "Enter 5 to see reviews of the product",
+                    "Enter 0 to Exit"
+                ]
+
+                print("\n")
+                for product_option in product_options:
+                    print("---------> ",product_option)
+                print("\n")
+
+                user_options = int(input("\nEnter your choice : "))
+                product_app.product_operations(user_options,product_id,user_id)
         except Exception as e:
             print(f"Error during search: {e}")
 
