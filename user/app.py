@@ -94,7 +94,6 @@ class EMSAPP:
         table.add_column("Many More ...", [""] * len(table._rows))
         print("\n<--------- ", table_category," --------->\n")
         print(table)
-
         try:
 
             product_actions = [
@@ -112,18 +111,37 @@ class EMSAPP:
             product_action_choice  = int(input("Enter your choice : "))
 
             if product_action_choice == 1:
+
+                print("\n<--------- Your cart details --------->\n")
                 
                 query = """
-                SELECT * from cart where user_id = %s
-                """
-                
-                cursor.execute(query, (user_id, ))
-                cart_list = cursor.fetchall()
+                    SELECT 
+                        p.id AS product_id,
+                        p.name AS product_name,
+                        p.company,
+                        p.category,
+                        p.sub_category,
+                        p.price,
+                        c.count AS cart_count
+                    FROM 
+                        cart c
+                    JOIN 
+                        products p ON c.product_id = p.id
+                    WHERE 
+                        c.user_id = %s;
+
+                    """
+                conn = mysql.connector.connect(**config)
+                with conn.cursor() as cart_cursor:
+                    cart_cursor.execute(query, (user_id,))
+                    cart_list = cart_cursor.fetchall()
 
                 for items in cart_list:
-                    with conn.cursor() as new_cursor:
-                        product_app.view_product(items[1])
-
+                    cart_table = PrettyTable()
+                    column_title = items[1]
+                    product_details = [str(items[i]) for i in range(2, len(items))]
+                    cart_table.add_column(column_title, product_details)
+                    print(cart_table, "\n")
             elif product_action_choice == 2:
                 pass
             elif product_action_choice == 3:
