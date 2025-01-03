@@ -63,7 +63,10 @@ class Product:
         choice = input("Do you want to search (y/n) : ")
 
         if (choice == 'y' or choice == 'Y'):
-            self.search()
+            product_found = self.search()
+        
+            while (not product_found):
+                product_found = self.search()
             
         product_id = int(input("\nEnter the ID of the product : "))
 
@@ -130,7 +133,10 @@ class Product:
         choice = input("Do you want to search (y/n) : ")
 
         if (choice == 'y' or choice == 'Y'):
-            self.search()
+            product_found = self.search()
+        
+            while (not product_found):
+                product_found = self.search()
             
         product_id = int(input("\nEnter the ID of the product : "))
 
@@ -163,7 +169,10 @@ class Product:
     def addOffer(self):
         # Code to add offer to product
         print("<--------- Search for the product to add offer (One product at a time) --------->\n")
-        self.search()
+        product_found = self.search()
+        
+        while (not product_found):
+            product_found = self.search()
 
         product = input("\nEnter the product ID : ")
 
@@ -240,7 +249,10 @@ class Product:
         # Code to update product details
         print("Search for the product to which offer details are added")
 
-        self.search()
+        product_found = self.search()
+        
+        while (not product_found):
+            product_found = self.search()
 
         id = input("\nEnter the product id of the product : ")
 
@@ -313,7 +325,10 @@ class Product:
         # Code to delete a product
         print("Search for the product to which offer details are added")
 
-        self.search()
+        product_found = self.search()
+
+        while (not product_found):
+            product_found = self.search()
 
         id = input("\nEnter the product id of the product : ")
 
@@ -464,11 +479,14 @@ class Product:
                 # Print table
                 print(table)
 
+                return True
             else:
                 print("\nNo product found. Please try again!!!")
-
+                
         except Exception as e:
             print(f"\nError during search: {e}")
+        
+        return False
 
     def product_operations(self, user_options, product_id, user_id):
         
@@ -505,14 +523,14 @@ class Product:
                     delivery_state   = input("\nEnter the state   : ")
                     delivery_pincode = input("\nEnter the pincode : ")
 
-                    print("<--------- Confirm your delivery address --------->")
+                    print("\n<--------- Confirm your delivery address --------->\n")
                     print("Address : ", delivery_address)
                     print("City    : ", delivery_city)
                     print("State   : ", delivery_state)
                     print("PinCode : ", delivery_pincode)
 
                     confirmation_location = input("\nEnter y/Y to continue for payment, if there is any change in address, Enter n/N : ")
-                    if confirmation_location == 'n' or confirmation_location == 'N':
+                    if confirmation_location == 'y' or confirmation_location == 'Y':
                         break
             
             query = """
@@ -564,15 +582,13 @@ class Product:
 
                     payment_completed = True
 
-                    print("<--------- Payment Successfull, Order Placed !!! --------->\n")
-
                     order_id  = self.generate_order_id()
 
                     query = """
-                    INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status, product_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     """
-                    self.cursor.execute(query, [order_id, user_id, tot_amt, "Pending", "Completed"])
+                    self.cursor.execute(query, [order_id, user_id, tot_amt, "Pending", "Completed", product_id])
                     self.conn.commit()
 
                     query = """
@@ -581,6 +597,8 @@ class Product:
                     """
                     self.cursor.execute(query, [order_id, user_name, phone_number, delivery_state, delivery_city, delivery_pincode, delivery_address])
                     self.conn.commit()
+
+                    print("<--------- Payment Successfull, Order Placed !!! --------->\n")
 
         elif(user_options == 2):
             # Code to add the product to cart

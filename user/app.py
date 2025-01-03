@@ -116,8 +116,8 @@ class EMSAPP:
                 
                 query = """
                     SELECT 
-                        p.id AS product_id,
                         p.name AS product_name,
+                        p.id AS product_id,
                         p.company,
                         p.category,
                         p.sub_category,
@@ -136,20 +136,95 @@ class EMSAPP:
                     cart_cursor.execute(query, (user_id,))
                     cart_list = cart_cursor.fetchall()
 
-                for items in cart_list:
-                    cart_table = PrettyTable()
-                    column_title = items[1]
-                    product_details = [str(items[i]) for i in range(2, len(items))]
-                    cart_table.add_column(column_title, product_details)
-                    print(cart_table, "\n")
+                if (not cart_list):
+                    print("\n<--------- Your cart is empty :( --------->\n")
+                else:
+                    self.view_product_info(cart_list)
+                    
             elif product_action_choice == 2:
-                pass
+                print("\n<--------- Your orders --------->\n")
+
+                query = """
+                    SELECT 
+                        p.name AS product_name,
+                        p.id AS product_id,
+                        p.company,
+                        p.category,
+                        p.sub_category,
+                        
+                        o.order_id,
+                        o.total_amount,
+                        o.payment_status,
+                        o.order_status
+                    FROM 
+                        orders o
+                    JOIN 
+                        products p ON o.product_id = p.id
+                    WHERE 
+                        o.user_id = %s;
+                    """
+                
+                conn = mysql.connector.connect(**config)
+                with conn.cursor() as orders_cursor:
+                    orders_cursor.execute(query, (user_id,))
+                    order_info = orders_cursor.fetchall()
+
+                if (not order_info):
+                    print("\n<--------- No order placed :( --------->\n")
+                else:
+                    for items in order_info:
+                        order_table = PrettyTable()
+                        column_title = items[0]
+                        order_details = [
+                            f"Product ID   : {items[1]}",
+                            f"Company      : {items[2]}",
+                            f"Category     : {items[3]}",
+                            f"Sub Category : {items[4]}",
+                            "--------------------------",
+                            f"Order Id     : {items[5]}",
+                            f"Amount       : {items[6]}",
+                            f"Payment Status : {items[7]}",
+                            f"Delivery     : {items[8]}"
+                        ]
+                        order_table.add_column(column_title, order_details)
+                        print(order_table, "\n")
+
             elif product_action_choice == 3:
-                pass
+                print("\n<--------- Your wishlist details --------->\n")
+                
+                query = """
+                    SELECT 
+                        p.name AS product_name,
+                        p.id AS product_id,
+                        p.company,
+                        p.category,
+                        p.sub_category,
+                        p.price,
+                        w.count AS cart_count
+                    FROM 
+                        wishlist w
+                    JOIN 
+                        products p ON w.product_id = p.id
+                    WHERE 
+                        w.user_id = %s;
+                    """
+                conn = mysql.connector.connect(**config)
+                with conn.cursor() as wishlist_cursor:
+                    wishlist_cursor.execute(query, (user_id,))
+                    wishlist_list = wishlist_cursor.fetchall()
+
+                if (not wishlist_list):
+                    print("\n<--------- Your wishlist is empty :( --------->\n")
+                else:
+                    self.view_product_info(wishlist_list)
+
             elif product_action_choice == 0:
                 print("\n\n<--------- Search for the product name which you need --------->\n")
 
-                product_app.search(True)
+                product_found = product_app.search(True)
+
+                while (not product_found):
+                    product_found = product_app.search(True)
 
                 product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
 
@@ -164,7 +239,6 @@ class EMSAPP:
                     "Enter 5 to see reviews of the product",
                     "Enter 0 to Exit"
                 ]
-
                 print("\n")
                 for product_option in product_options:
                     print("---------> ",product_option)
@@ -172,8 +246,24 @@ class EMSAPP:
 
                 user_options = int(input("\nEnter your choice : "))
                 product_app.product_operations(user_options,product_id,user_id)
+
         except Exception as e:
             print(f"Error during search: {e}")
+
+    def view_product_info(self, product_data):
+        for items in product_data:
+            product_table = PrettyTable()
+            column_title = items[0]
+            product_details = [
+                f"Product ID   : {items[1]}",
+                f"Company      : {items[2]}",
+                f"Category     : {items[3]}",
+                f"Sub Category : {items[4]}",
+                f"Price        : {items[5]}",
+                f"Count        : {items[6]}",
+            ]
+            product_table.add_column(column_title, product_details)
+            print(product_table, "\n")
 
 app = EMSAPP()
 product_app = Product(conn)

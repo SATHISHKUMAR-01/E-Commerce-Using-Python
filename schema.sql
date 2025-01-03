@@ -145,3 +145,17 @@ CREATE TABLE wallet (
     CONSTRAINT fk_wallet_user
         FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
+
+
+ALTER TABLE orders
+ADD COLUMN product_id INT DEFAULT NULL;
+
+UPDATE orders
+SET product_id = 2
+
+ALTER TABLE orders
+MODIFY COLUMN product_id INT NOT NULL;
+
+ALTER TABLE orders
+ADD CONSTRAINT fk_orders_product
+FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE;
