@@ -362,22 +362,51 @@ class Product:
             print("<--------- Offer Delete Operation Failed --------->")
     
     def viewOffer(self):
+        
         query = """
-            SELECT * FROM discount
-            """
+
+        SELECT 
+            p.name AS product_name,
+            p.id AS product_id,
+            p.company,
+            p.category,
+            p.sub_category,
+            p.price,
+            
+            d.discount_type,
+            d.buy_val,
+            d.get_val,
+            d.flat_percentage
+        FROM 
+            discount d
+        JOIN 
+            products p ON d.product_id = p.id
+        """
+        
         self.cursor.execute(query)
-        products =self.cursor.fetchall()
+        offer_products = self.cursor.fetchall()
 
-        # Dynamically fetch column names from the cursor description
-        columns = [desc[0] for desc in self.cursor.description]  # Extract column names
+        for items in offer_products:
+            offer_table = PrettyTable()
+            column_title = items[0]
+            offer_type = items[6]
 
-        table = PrettyTable()
-        table.field_names = columns
+            if offer_type == "D0001":
+                offer_details = "Buy " + str(items[7]) + " Get " + str(items[8])
+            elif offer_type == "D0002":
+                offer_details = "Flat " + str(items[9]) + "% discount \n\n" + "Offer Price - " + str( items[5] - ((items[9]/100)  * items[5] ) )
 
-        for product in products:
-            table.add_row(product)
-
-        print(table)
+            product_details = [
+                f"Product ID   : {items[1]}",
+                f"Company      : {items[2]}",
+                f"Category     : {items[3]}",
+                f"Sub Category : {items[4]}",
+                f"Price        : {items[5]}",
+                "--------------------------",
+                f"Offer        : {offer_details}"
+            ]
+            offer_table.add_column(column_title, product_details)
+            print(offer_table, "\n")
 
     def update(self,new_value,column_name,table_name,product_id):
         try:

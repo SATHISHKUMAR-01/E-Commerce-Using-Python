@@ -268,7 +268,10 @@ class EMSAPP:
             table.add_column("Many More ...", [""] * len(table._rows))
             print("\n<--------- ", table_category," --------->\n")
             print(table)
-            
+
+            print ("\n<---------  Today Offers --------->\n")
+            product_app.viewOffer()
+
             print("\n\n<--------- Search for the product name which you need --------->\n")
             product_found = product_app.search(True)
             while (not product_found):
