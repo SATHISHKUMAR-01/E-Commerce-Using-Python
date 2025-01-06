@@ -81,6 +81,7 @@ if (choice == LOGIN):
             "7. Update Discount/Offer of the products",
             "8. View Discount/Offer of the products",
             "9. View Sales Details",
+            "10. View current orders",
             "0. Exit"
         ]
 
@@ -126,6 +127,9 @@ if (choice == LOGIN):
                     product_app.viewOffer()
                 case 9 :
                     print("\n<--------- View Sales Details --------->\n")
+                case 10 :
+                    print("\n<--------- View Ongoing Orders --------->\n")
+                    product_app.view_current_orders()
 
             is_continue = input("\n\nDo you want to continue (y/n) : ")
             print("\n")

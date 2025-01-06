@@ -734,3 +734,63 @@ class Product:
         for action in actions:
             action_table.add_row([action])
         print(action_table)
+    
+    def view_current_orders(self):
+
+        query = """
+
+        SELECT 
+            p.name AS product_name,
+            p.id AS product_id,
+            p.company,
+            p.category,
+            p.sub_category,
+
+            o.total_amount,
+            o.order_id,
+            o.user_id,
+
+            u.name,
+            u.email,
+            u.phone_number,
+            u.address,
+            u.city,
+            u.state,
+            u.pincode
+        
+        FROM 
+            orders o
+        JOIN 
+            products p ON o.product_id = p.id
+        JOIN 
+            user u ON o.user_id = u.id
+        WHERE
+            payment_status = %s AND order_status = %s
+        """
+
+        self.cursor.execute(query, ["Completed", "Pending"])
+        current_orders = self.cursor.fetchall()
+
+        for items in current_orders:
+            
+            orders_table = PrettyTable()
+            column_title = items[0]
+           
+            product_details = [
+                f"Product ID   : {items[1]}",
+                f"Company      : {items[2]}",
+                f"Category     : {items[3]}",
+                f"Sub Category : {items[4]}",
+                "-----------------------------------------------------------------------------------",
+                f"Order ID     : {items[6]}",
+                f"Order Amount : {items[5]}",
+                "-----------------------------------------------------------------------------------",
+                f"Customer Name   : {items[8]}",
+                f"Customer Email  : {items[9]}",
+                f"Customer Ph.Num : {items[10]}",
+                f"Address         : {items[11] + " " + items[12] + " ", items[13] + " " + items[13]}"
+
+            ]
+            orders_table.add_column(column_title, product_details)
+            print(orders_table, "\n")
+            
