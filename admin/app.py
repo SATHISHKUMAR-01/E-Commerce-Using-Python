@@ -136,7 +136,7 @@ if (choice == LOGIN):
                     print("\n<--------- View Completed Orders --------->\n")
                     product_app.view_completed_orders()
                 case 12 :
-                    print("\n<--------- Change Order Status to Completed --------->\n")
+                    print("\n<--------- Change Order Status to delivered --------->\n")
                     product_app.change_order_status()
 
             is_continue = input("\n\nDo you want to continue (y/n) : ")

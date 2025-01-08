@@ -86,6 +86,7 @@ class EMSAPP:
             print(product_table, "\n")
 
     def dashboard_operation(self, product_action_choice, user_id):
+
         if product_action_choice == 1:
 
             print("\n<--------- Your cart details --------->\n")
@@ -175,6 +176,55 @@ class EMSAPP:
                     ]
                     order_table.add_column(column_title, order_details)
                     print(order_table, "\n")
+
+                is_return = input("\nDo you want to return or replace any product (y/n) : ")
+
+                if is_return == 'Y' or is_return == 'y':
+                    order_id = input("\nEnter the Order ID of the completed order : ")
+
+                    exchange_options = [
+                        "Press 1 to return the product",
+                        "Press 2 to replace the product"
+                    ]
+
+                    for options in exchange_options:
+                        print("---------> ", options)
+
+                    exchange_choice = input("\nEnter your choice of exchange : ")
+
+                    while (exchange_choice < 1 or exchange_choice > 2):
+                        print("\nInvalid Choice !!!\n")
+                        exchange_choice = input("\nEnter your choice of exchange : ")
+
+
+                    if exchange_choice == '1':
+                        reason = input("\nEnter the reason for your return : ")
+                    elif exchange_choice == '2':
+                        reason = input("\nEnter the reason for your replacement : ")
+
+                        replace_options = [
+                            "Press 1 to replace the same product",
+                            "Press 2 to replace the different product"
+                        ]
+                        
+                        for options in replace_options:
+                            print("---------> ", options)
+                        
+                        replace_choice = input("\nEnter your choice of replacement : ")
+
+                        while (replace_choice < 1 or replace_choice > 2):
+                            print("\nInvalid Choice !!!\n")
+                            exchange_choice = input("\nEnter your choice of replacement : ")
+
+                        if exchange_choice == '1':
+                            print("<--------- Replacement requested for the old product --------->")
+                        elif exchange_choice == '2':
+                            print("<--------- Search for the product to replace --------->")
+
+                            product_found = product_app.search(True)
+                            while (not product_found):
+                                product_found = product_app.search(True)
+                            product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
 
         elif product_action_choice == 3:
             print("\n<--------- Your wishlist details --------->\n")

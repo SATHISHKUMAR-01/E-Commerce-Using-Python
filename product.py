@@ -879,3 +879,22 @@ class Product:
             ]
             orders_table.add_column(column_title, product_details)
             print(orders_table, "\n")
+
+    def change_order_status(self):
+
+        order_id = input("\nEnter the Order ID to mark it as delivered : ")
+
+        query = """
+            UPDATE 
+                orders
+            SET
+                order_status = "Completed"
+            WHERE
+                order_id = %s
+        """
+        
+        self.cursor.execute(query, (order_id,))
+        if self.cursor.rowcount == 0:
+            print("\n<--------- Invalid Order ID --------->\n")
+        else:
+            print("\n<--------- Order Status updated successfully! --------->\n")
