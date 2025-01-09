@@ -159,3 +159,14 @@ MODIFY COLUMN product_id INT NOT NULL;
 ALTER TABLE orders
 ADD CONSTRAINT fk_orders_product
 FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE;
+
+CREATE TABLE return_table (
+    return_id VARCHAR(50) PRIMARY KEY,
+    order_id VARCHAR(30), -- Reference to Orders table
+    reason VARCHAR(255) NOT NULL,
+    return_status VARCHAR(50) DEFAULT 'Pending',
+
+    -- Foreign Key Constraint
+    CONSTRAINT fk_return
+        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);

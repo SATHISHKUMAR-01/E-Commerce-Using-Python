@@ -7,6 +7,8 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from product import Product
 from wallet import Wallet
+import random
+import string
 
 # # Load configuration
 with open('/Users/sathiska/Documents/python/E-Commerce-Using-Python/config.json', 'r') as config_file:
@@ -154,6 +156,7 @@ class EMSAPP:
                 """
             
             conn = mysql.connector.connect(**config)
+            order_mapping = {}
             with conn.cursor() as orders_cursor:
                 orders_cursor.execute(query, (user_id,))
                 order_info = orders_cursor.fetchall()
@@ -174,12 +177,13 @@ class EMSAPP:
                         f"Payment Status : {items[7]}",
                         f"Delivery     : {items[8]}"
                     ]
+                    order_mapping[items[5]] = order_details[1:]
                     order_table.add_column(column_title, order_details)
                     print(order_table, "\n")
 
-                is_return = input("\nDo you want to return or replace any product (y/n) : ")
+                is_exchange = input("\nDo you want to return or replace any product (y/n) : ")
 
-                if is_return == 'Y' or is_return == 'y':
+                if is_exchange == 'Y' or is_exchange == 'y':
                     order_id = input("\nEnter the Order ID of the completed order : ")
 
                     exchange_options = [
@@ -188,18 +192,53 @@ class EMSAPP:
                     ]
 
                     for options in exchange_options:
-                        print("---------> ", options)
+                        print("\n---------> ", options)
 
-                    exchange_choice = input("\nEnter your choice of exchange : ")
+                    exchange_choice = int(input("\nEnter your choice of exchange : "))
 
                     while (exchange_choice < 1 or exchange_choice > 2):
                         print("\nInvalid Choice !!!\n")
-                        exchange_choice = input("\nEnter your choice of exchange : ")
+                        exchange_choice = int(input("\nEnter your choice of exchange : "))
 
+                    query = """
+                    SELECT wallet_id, amount from wallet where user_id = %s
+                    """
+                    with conn.cursor() as wallet_details:
+                        wallet_details.execute(query, (user_id,))
+                        wallet_info = wallet_details.fetchall()
+                    
+                    wallet_id = str(wallet_info[0])
+                    wallet_amount = float(wallet_info[1])
 
-                    if exchange_choice == '1':
+                    order_amt = float(order_mapping[order_id][5].split(':')[1].strip())
+                    
+                    if exchange_choice == 1:
                         reason = input("\nEnter the reason for your return : ")
-                    elif exchange_choice == '2':
+
+                        characters = string.ascii_uppercase + string.digits
+                        return_id = ''.join(random.choices(characters, k=6))
+                        
+                        print("\n<--------- Your order amount will be credited back to your account, once product is collected --------->")
+
+                        update_order_query = """
+                        UPDATE orders SET order_status = %s WHERE order_id = %s
+                        """
+
+                        add_return_data = """
+                        INSERT INTO return_table (return_id, order_id, reason, return_status)
+                        VALUES (%s, %s, %s, %s)
+                        """
+                        
+                        with conn.cursor() as update_order:
+                            update_order.execute(update_order_query, ["Return", order_id])
+                            update_order.commit()
+                        
+                            update_order.execute(add_return_data, [return_id, order_id, reason, "Pending"])
+                            update_order.commit()
+
+                        print("\n<--------- Product Return request successful --------->\n")
+
+                    elif exchange_choice == 2:
                         reason = input("\nEnter the reason for your replacement : ")
 
                         replace_options = [
@@ -208,23 +247,116 @@ class EMSAPP:
                         ]
                         
                         for options in replace_options:
-                            print("---------> ", options)
+                            print("\n---------> ", options)
                         
-                        replace_choice = input("\nEnter your choice of replacement : ")
+                        replace_choice = int(input("\nEnter your choice of replacement : "))
 
                         while (replace_choice < 1 or replace_choice > 2):
                             print("\nInvalid Choice !!!\n")
-                            exchange_choice = input("\nEnter your choice of replacement : ")
+                            exchange_choice = int(input("\nEnter your choice of replacement : "))
 
-                        if exchange_choice == '1':
+                        payment_completed = False
+
+                        if exchange_choice == 1:
                             print("<--------- Replacement requested for the old product --------->")
-                        elif exchange_choice == '2':
-                            print("<--------- Search for the product to replace --------->")
+                            payment_completed = True
+
+                        elif exchange_choice == 2:
+                            print("\n<--------- Search for the product to replace --------->\n")
 
                             product_found = product_app.search(True)
                             while (not product_found):
                                 product_found = product_app.search(True)
                             product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
+
+                            query = """
+                                SELECT * from products where id = %s
+                            """
+
+                            with conn.cursor() as product_details:
+                                product_details.execute(query, (product_id,))
+                                product_info = product_details.fetchall()
+                            
+                            count = int(input("\nAdd the number of products you want to buy : "))
+
+                            amt = count * product_info[0][5]
+
+                            amt =  float(amt)
+                            
+                            if ( amt > order_amt) :
+                                print("\nYour amount exceeds the previous ordered amount\n")
+                                print("\nPay : ", amt - order_amt)
+
+                                print("\n<--------- Checking your wallet balance --------->\n")
+
+                                print("\nWallet Balance : ", wallet_amount)
+
+                                balance_amt = amt - order_amt
+
+                                while(not payment_completed):
+                                    if (wallet_amount < balance_amt):
+                                        print ("\n<--------- Insufficient Balance --------->\n")
+    
+                                        op = input("\nDo you want to recharge your wallet now (y/n) : ")
+
+                                        if (op == 'Y' or op == 'y'):
+                                            wallet_app.recharge_wallet(wallet_amount, wallet_id)
+                                        else :
+                                            payment_completed = True
+                                            print("<--------- Payment failed !!! --------->\n")
+
+                                    else :
+                                        update_balance = wallet_amount - balance_amt
+
+                                        wallet_app.deduct_amt_from_wallet(wallet_id, update_balance)
+
+                                        payment_completed = True
+                            else :
+                                print("\nBalance Amount : ", order_amt - amt, " will be credited back to wallet\n")
+                                wallet_app.recharge_wallet(order_amt - amt, wallet_id)
+                                payment_completed = True
+
+
+                        if (payment_completed):
+                            print("\n<--------- Delivery Location Details --------->\n")
+
+                            query = """
+                                SELECT * from shipping_address where order_id = %s
+                                """
+
+                            with conn.cursor() as location_details:
+                                location_details.execute(query, (order_id,))
+                                location_info = location_details.fetchall()
+
+                            address = location_info[6]
+                            pincode = location_info[5]
+                            city = location_info[4]
+                            state = location_info[3]
+
+                            print("\nAddress : ", address)
+                            print("City    : ", city)
+                            print("State   : ", state)
+                            print("PinCode : ", pincode)
+
+                            is_location_change = input("\nIs there any change in delivery location (y/n) ? ")
+
+                            if is_location_change == 'y' or is_location_change == 'Y':
+                                while(True):
+                                    address = input("\nEnter the delivery address (Flat/Building No, Street, Area name) : ")
+                                    city    = input("\nEnter the city    : ")
+                                    state   = input("\nEnter the state   : ")
+                                    pincode = input("\nEnter the pincode : ")
+
+                                    print("\n<--------- Confirm your delivery address --------->\n")
+                                    print("Address : ", address)
+                                    print("City    : ", city)
+                                    print("State   : ", state)
+                                    print("PinCode : ", pincode)
+
+                                    confirmation_location = input("\nEnter y/Y to confirm, if there is any change in address, Enter n/N : ")
+                                    if confirmation_location == 'y' or confirmation_location == 'Y':
+                                        break
+
 
         elif product_action_choice == 3:
             print("\n<--------- Your wishlist details --------->\n")
