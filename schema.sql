@@ -170,3 +170,15 @@ CREATE TABLE return_table (
     CONSTRAINT fk_return
         FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
+
+CREATE TABLE replace_table (
+    replace_id VARCHAR(50) PRIMARY KEY,
+    old_order_id VARCHAR(30), -- Reference to Orders table
+    new_order_id VARCHAR(30),
+    reason VARCHAR(255) NOT NULL,
+    return_status VARCHAR(50) DEFAULT 'Pending',
+
+    -- Foreign Key Constraint
+    CONSTRAINT fk_replace
+        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);

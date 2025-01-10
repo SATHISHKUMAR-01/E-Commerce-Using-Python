@@ -356,7 +356,35 @@ class EMSAPP:
                                     confirmation_location = input("\nEnter y/Y to confirm, if there is any change in address, Enter n/N : ")
                                     if confirmation_location == 'y' or confirmation_location == 'Y':
                                         break
+                            
+                            update_order_query = """
+                            UPDATE orders SET order_status = %s WHERE order_id = %s
+                            """
 
+                            new_order_id = product_app.generate_order_id()
+
+                            characters = string.ascii_uppercase + string.digits
+                            replace_id = ''.join(random.choices(characters, k=6))
+
+                            add_return_data = """
+                            INSERT INTO replace_table (replace_id, old_order_id, new_order_id, reason, return_status)
+                            VALUES (%s, %s, %s, %s)
+                            """
+
+                            add_new_orders = """
+                            INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status, product_id)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                            """
+                            
+                            with conn.cursor() as update_order:
+                                update_order.execute(update_order_query, ["Replaced", order_id])
+                                update_order.commit()
+                            
+                                update_order.execute(add_return_data, [replace_id, order_id, new_order_id, reason, "Pending"])
+                                update_order.commit()
+
+                                update_order.execute(add_new_orders, [new_order_id, user_id, amt, "Pending", "Completed", product_id])
+                                update_order.commit()
 
         elif product_action_choice == 3:
             print("\n<--------- Your wishlist details --------->\n")
