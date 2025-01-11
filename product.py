@@ -771,52 +771,57 @@ class Product:
         self.cursor.execute(query, ["Completed", "Pending"])
         current_orders = self.cursor.fetchall()
 
-        for items in current_orders:
+        if (len(current_orders) == 0):
+            print("\n<--------- No Pending orders :( --------->\n")
+        else:
+
+            for items in current_orders:
+                
+                orders_table = PrettyTable()
+                column_title = items[0]
             
-            orders_table = PrettyTable()
-            column_title = items[0]
-           
-            product_details = [
-                f"Product ID   : {items[1]}",
-                f"Company      : {items[2]}",
-                f"Category     : {items[3]}",
-                f"Sub Category : {items[4]}",
-                "-----------------------------------------------------------------------------------",
-                f"Order ID     : {items[6]}",
-                f"Order Amount : {items[5]}",
-                "-----------------------------------------------------------------------------------",
-                f"Customer Name   : {items[8]}",
-                f"Customer Email  : {items[9]}",
-                f"Customer Ph.Num : {items[10]}",
-                f"Address         : {items[11] + " " + items[12] + " ", items[13] + " " + items[13]}"
+                product_details = [
+                    f"Product ID   : {items[1]}",
+                    f"Company      : {items[2]}",
+                    f"Category     : {items[3]}",
+                    f"Sub Category : {items[4]}",
+                    "-----------------------------------------------------------------------------------",
+                    f"Order ID     : {items[6]}",
+                    f"Order Amount : {items[5]}",
+                    "-----------------------------------------------------------------------------------",
+                    f"Customer Name   : {items[8]}",
+                    f"Customer Email  : {items[9]}",
+                    f"Customer Ph.Num : {items[10]}",
+                    f"Address         : {items[11] + " " + items[12] + " ", items[13] + " " + items[13]}"
 
-            ]
-            orders_table.add_column(column_title, product_details)
-            print(orders_table, "\n")
-        
-        while(True):
-            is_dispatch = input("Did you want to dispatch any orders (y/n) : ")
+                ]
+                orders_table.add_column(column_title, product_details)
+                print(orders_table, "\n")
+            
+            while(True):
+                is_dispatch = input("Did you want to dispatch any orders (y/n) : ")
 
-            if is_dispatch == 'n' or is_dispatch == 'N':
-                break
+                if is_dispatch == 'n' or is_dispatch == 'N':
+                    break
 
-            order_id = input("\nEnter the Order ID to dispatch/deliver : ")
+                order_id = input("\nEnter the Order ID to dispatch/deliver : ")
 
-            query = """
-                UPDATE 
-                    orders
-                SET
-                    order_status = "Dispatched"
-                WHERE
-                    order_id = %s
-            """
+                query = """
+                    UPDATE 
+                        orders
+                    SET
+                        order_status = %s
+                    WHERE
+                        order_id = %s
+                """
 
-            self.cursor.execute(query, (order_id,))
+                self.cursor.execute(query, ["Dispatched", order_id])
+                self.conn.commit()
 
-            if self.cursor.rowcount == 0:
-                print("\n<--------- Invalid Order ID --------->\n")
-            else:
-                print("\n<--------- Order Status updated to Dispatched --------->\n")
+                if self.cursor.rowcount == 0:
+                    print("\n<--------- Invalid Order ID --------->\n")
+                else:
+                    print("\n<--------- Order Status updated to Dispatched --------->\n")
 
     def view_completed_orders(self):
 
@@ -894,7 +899,89 @@ class Product:
         """
         
         self.cursor.execute(query, (order_id,))
+        self.conn.commit()
+
         if self.cursor.rowcount == 0:
             print("\n<--------- Invalid Order ID --------->\n")
         else:
             print("\n<--------- Order Status updated successfully! --------->\n")
+
+    def view_return_orders(self):
+        
+        query = """
+                SELECT 
+                    r.return_id,
+                    r.reason,
+                    r.return_status,
+
+                    r.order_id,
+                    o.user_id,
+                    o.total_amount,
+
+                    p.id AS product_id,
+                    p.company,
+                    p.category,
+                    p.sub_category,
+
+                    u.name,
+                    u.email,
+                    u.phone_number,
+                    u.address,
+                    u.city,
+                    u.state,
+                    u.pincode
+                    
+                FROM 
+                    return_table r
+                JOIN 
+                    orders o ON o.order_id = r.order_id
+                JOIN 
+                    products p ON o.product_id = p.id
+                JOIN 
+                    user u ON o.user_id = u.id
+                WHERE 
+                    r.return_status = %s
+                    AND 
+                    o.order_status = %s
+                """
+        
+        self.cursor.execute(query, ["Pending", "Return"])
+        return_orders = self.cursor.fetchall()
+
+        return_orders_info = {}
+
+        if (not return_orders):
+                print("\n<--------- No pending return orders :) --------->\n")
+        else:
+            return_table = PrettyTable()
+        return_table.field_names = ["Field", "Value"]
+
+        # Iterate through the return orders
+        for items in return_orders:
+            # Map the items to the respective fields
+            return_details = {
+                "Return ID": items[0],
+                "Order ID": items[3],
+                "Product ID": items[6],
+                "Company": items[7],
+                "Category": items[8],
+                "Sub Category": items[9],
+                "Amount": items[5],
+                "Name": items[10],
+                "Email": items[11],
+                "Phone": items[12],
+                "Address": items[13],
+                "City": items[14],
+                "State": items[15],
+                "Pincode": items[16],
+                "Return Reason": items[1],
+            }
+            
+            # Add each key-value pair to the table
+            return_table.clear_rows()  # Clear rows for the new item
+            for key, value in return_details.items():
+                return_table.add_row([key, value])
+            
+            # Print the table for each return order
+            print(f"Details for Return ID: {items[0]}")
+            print(return_table, "\n")

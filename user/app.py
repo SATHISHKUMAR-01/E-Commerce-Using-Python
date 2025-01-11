@@ -206,9 +206,9 @@ class EMSAPP:
                     with conn.cursor() as wallet_details:
                         wallet_details.execute(query, (user_id,))
                         wallet_info = wallet_details.fetchall()
-                    
-                    wallet_id = str(wallet_info[0])
-                    wallet_amount = float(wallet_info[1])
+
+                    wallet_id = str(wallet_info[0][0])
+                    wallet_amount = float(wallet_info[0][1])
 
                     order_amt = float(order_mapping[order_id][5].split(':')[1].strip())
                     
@@ -228,13 +228,12 @@ class EMSAPP:
                         INSERT INTO return_table (return_id, order_id, reason, return_status)
                         VALUES (%s, %s, %s, %s)
                         """
-                        
+                        conn = mysql.connector.connect(**config)
                         with conn.cursor() as update_order:
                             update_order.execute(update_order_query, ["Return", order_id])
-                            update_order.commit()
-                        
+                            conn.commit()
                             update_order.execute(add_return_data, [return_id, order_id, reason, "Pending"])
-                            update_order.commit()
+                            conn.commit()
 
                         print("\n<--------- Product Return request successful --------->\n")
 

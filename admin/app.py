@@ -83,7 +83,8 @@ if (choice == LOGIN):
             "9. View Sales Details",
             "10. View current orders",
             "11. View completed orders",
-            "12. Change order status to delivered"
+            "12. Change order status to delivered",
+            "13. View return orders",
             "0. Exit"
         ]
 
@@ -138,6 +139,9 @@ if (choice == LOGIN):
                 case 12 :
                     print("\n<--------- Change Order Status to delivered --------->\n")
                     product_app.change_order_status()
+                case 13 :
+                    print("\n<--------- View Return orders --------->\n")
+                    product_app.view_return_orders()
 
             is_continue = input("\n\nDo you want to continue (y/n) : ")
             print("\n")
