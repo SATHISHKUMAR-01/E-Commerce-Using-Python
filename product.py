@@ -954,34 +954,71 @@ class Product:
                 print("\n<--------- No pending return orders :) --------->\n")
         else:
             return_table = PrettyTable()
-        return_table.field_names = ["Field", "Value"]
+            return_table.field_names = ["Field", "Value"]
 
-        # Iterate through the return orders
-        for items in return_orders:
-            # Map the items to the respective fields
-            return_details = {
-                "Return ID": items[0],
-                "Order ID": items[3],
-                "Product ID": items[6],
-                "Company": items[7],
-                "Category": items[8],
-                "Sub Category": items[9],
-                "Amount": items[5],
-                "Name": items[10],
-                "Email": items[11],
-                "Phone": items[12],
-                "Address": items[13],
-                "City": items[14],
-                "State": items[15],
-                "Pincode": items[16],
-                "Return Reason": items[1],
-            }
+            # Iterate through the return orders
+            for items in return_orders:
+                # Map the items to the respective fields
+                return_details = {
+                    "Return ID": items[0],
+                    "Order ID": items[3],
+                    "Product ID": items[6],
+                    "Company": items[7],
+                    "Category": items[8],
+                    "Sub Category": items[9],
+                    "Amount": items[5],
+                    "User ID": items[4],
+                    "Name": items[10],
+                    "Email": items[11],
+                    "Phone": items[12],
+                    "Address": items[13],
+                    "City": items[14],
+                    "State": items[15],
+                    "Pincode": items[16],
+                    "Return Reason": items[1],
+                }
+                return_orders_info[return_details['Return ID']] = return_details
+                # Add each key-value pair to the table
+                return_table.clear_rows()  # Clear rows for the new item
+                for key, value in return_details.items():
+                    return_table.add_row([key, value])
+                
+                # Print the table for each return order
+                print(f"Details for Return ID: {items[0]}")
+                print(return_table, "\n")
             
-            # Add each key-value pair to the table
-            return_table.clear_rows()  # Clear rows for the new item
-            for key, value in return_details.items():
-                return_table.add_row([key, value])
-            
-            # Print the table for each return order
-            print(f"Details for Return ID: {items[0]}")
-            print(return_table, "\n")
+            ch = input("\nDo you want to close any return orders (y/n) : ")
+
+            if (ch == 'y' or ch == 'Y'):
+                return_id = input("\nEnter the Return ID to close the order : ")
+
+                product_confirmation = input("\nDoes the product has been received (y/n) : ")
+
+                if product_confirmation == 'y' or product_confirmation == 'Y':
+                    query = """
+                    UPDATE return_table SET return_status = %s WHERE return_id = %s
+                    """
+                    self.cursor.execute(query, ["Completed", return_id ])
+                    self.conn.commit()
+
+
+                    user_id = return_orders_info[return_id]['User ID']
+
+                    query = """
+                    SELECT wallet_id, amount from wallet where user_id = %s
+                    """
+
+                    self.cursor.execute(query, [user_id])
+                    wallet_info = self.cursor.fetchall()
+                   
+                    wallet_id = str(wallet_info[0][0])
+                    wallet_amount = float(wallet_info[0][1])
+
+                    return_amt = return_orders_info[return_id]['Amount']
+
+                    self.wallet_app.add_wallet_amt(wallet_amount, wallet_id, return_amt)
+
+                    print("\n<--------- Operation Completed Successfully --------->\n")
+
+                else:
+                    print("\n<--------- You cant close the return order, without receiving the product --------->\n")
