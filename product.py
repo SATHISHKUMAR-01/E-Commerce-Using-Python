@@ -1,4 +1,5 @@
 import mysql.connector
+import json
 from prettytable import PrettyTable
 from rapidfuzz import process
 from wallet import Wallet
@@ -382,10 +383,14 @@ class Product:
         JOIN 
             products p ON d.product_id = p.id
         """
-        
-        self.cursor.execute(query)
-        offer_products = self.cursor.fetchall()
+        with open('/Users/sathiska/Documents/python/E-Commerce-Using-Python/config.json', 'r') as config_file:
+            config = json.load(config_file)
+        sql = mysql.connector.connect(**config)
 
+        with sql.cursor() as view_offer_cursor:
+            view_offer_cursor.execute(query)
+            offer_products = view_offer_cursor.fetchall()
+        
         for items in offer_products:
             offer_table = PrettyTable()
             column_title = items[0]

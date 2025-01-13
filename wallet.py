@@ -72,7 +72,7 @@ class Wallet:
         self.conn.commit()
 
     def add_wallet_amt(self, wallet_amount, wallet_id, return_amt):
-        amt = wallet_amount+return_amt
+        amt = float(wallet_amount) + float(return_amt)
         query = """       
             UPDATE wallet SET amount = %s WHERE wallet_id = %s
         """

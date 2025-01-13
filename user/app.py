@@ -485,23 +485,27 @@ class EMSAPP:
             product_found = product_app.search(True)
             while (not product_found):
                 product_found = product_app.search(True)
-            product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
-            product_app.view_product(product_id)
-            product_app.product_actions()
-            product_options = [
-                "Enter 1 to buy the product",
-                "Enter 2 to add product to cart",
-                "Enter 3 to add product to wishlist",
-                "Enter 4 to add review comments",
-                "Enter 5 to see reviews of the product",
-                "Enter 0 to Exit"
-            ]
-            print("\n")
-            for product_option in product_options:
-                print("---------> ",product_option)
-            print("\n")
-            user_options = int(input("\nEnter your choice : "))
-            product_app.product_operations(user_options,product_id,user_id)
+            
+            buy_operation = input("Do you want to buy any of the displayed product (y/n) : ")
+
+            if buy_operation == 'y' or buy_operation == 'Y':
+                product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
+                product_app.view_product(product_id)
+                product_app.product_actions()
+                product_options = [
+                    "Enter 1 to buy the product",
+                    "Enter 2 to add product to cart",
+                    "Enter 3 to add product to wishlist",
+                    "Enter 4 to add review comments",
+                    "Enter 5 to see reviews of the product",
+                    "Enter 0 to Exit"
+                ]
+                print("\n")
+                for product_option in product_options:
+                    print("---------> ",product_option)
+                print("\n")
+                user_options = int(input("\nEnter your choice : "))
+                product_app.product_operations(user_options,product_id,user_id)
 
 app = EMSAPP()
 product_app = Product(conn)
