@@ -130,6 +130,7 @@ if (choice == LOGIN):
                     product_app.viewOffer()
                 case 9 :
                     print("\n<--------- View Sales Details --------->\n")
+                    product_app.viewSales()
                 case 10 :
                     print("\n<--------- View Ongoing Orders --------->\n")
                     product_app.view_current_orders()

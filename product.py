@@ -1027,3 +1027,40 @@ class Product:
 
                 else:
                     print("\n<--------- You cant close the return order, without receiving the product --------->\n")
+
+    def viewSales(self):
+
+        query = """
+            SELECT order_status, COUNT(*) AS total_orders
+            FROM orders
+            GROUP BY order_status;
+        """
+        self.cursor.execute(query)
+        order_status_summary = self.cursor.fetchall()
+        
+        print(order_status_summary)
+
+        products_query = """
+        SELECT 
+            p.name AS product_name,
+            SUM(o.total_amount) AS total_sales,
+            COUNT(o.product_id) AS total_orders
+        FROM 
+            orders o
+        LEFT JOIN 
+            products p ON p.id = o.product_id
+        GROUP BY 
+            p.id
+        ORDER BY 
+            total_orders DESC;
+        """
+        self.cursor.execute(products_query)
+        product_summary = self.cursor.fetchall()
+
+        print(product_summary)
+
+        most_bought_product = product_summary[0] if product_summary else {}
+        least_bought_product = product_summary[-1] if product_summary else {}
+
+        print(most_bought_product)
+        print(least_bought_product)
