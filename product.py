@@ -1038,7 +1038,9 @@ class Product:
         self.cursor.execute(query)
         order_status_summary = self.cursor.fetchall()
         
-        print(order_status_summary)
+        for row in order_status_summary:
+            print(f"Order Status: {row[0]}\nTotal Orders: {row[1]}")
+            print("------------------------------------------------")
 
         products_query = """
         SELECT 
@@ -1057,10 +1059,9 @@ class Product:
         self.cursor.execute(products_query)
         product_summary = self.cursor.fetchall()
 
-        print(product_summary)
-
         most_bought_product = product_summary[0] if product_summary else {}
         least_bought_product = product_summary[-1] if product_summary else {}
 
-        print(most_bought_product)
-        print(least_bought_product)
+        print("Most  Bought Product : ", most_bought_product[0])
+        print("Least Bought Product : ", least_bought_product[0])
+        print("------------------------------------------------")
