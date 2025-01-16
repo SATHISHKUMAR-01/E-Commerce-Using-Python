@@ -55,6 +55,7 @@ class EMSAPP:
                 "Enter 2 to view orders",
                 "Enter 3 to view wishlist",
                 "Enter 4 to go for search",
+                "Enter 5 to edit profile",
                 "Enter 0 to Logout"
             ]
 
@@ -506,6 +507,76 @@ class EMSAPP:
                 print("\n")
                 user_options = int(input("\nEnter your choice : "))
                 product_app.product_operations(user_options,product_id,user_id)
+
+        elif product_action_choice == 5:
+            
+            query = "SELECT * FROM user WHERE id = %s"
+            cursor.execute(query, (user_id,))
+            user_details = cursor.fetchone()
+
+            user_id, name, email, dob, phone, password, state, city, pincode, address = user_details
+
+            print("\n<--------- Your Profile --------->\n")
+            print("User ID          : ", user_id)
+            print("Name             : ", name)
+            print("Email            : ", email)
+            print("Date of Birth    : ", dob)
+            print("Phone Number     : ", phone)
+            print("Password         : ", password)
+            print("State            : ", state)
+            print("City             : ", city)
+            print("Pincode          : ", pincode)
+            print("Address          : ", address)
+
+            edit = input("\nDo you want to edit any data (y/n) ? ")
+            print("\n")
+
+            if edit == 'y' or edit == 'Y':
+
+                values = [
+                    'Name',
+                    'Email',
+                    'Date of Birth',
+                    'Phone Number',
+                    'Password',
+                    'State',
+                    'City',
+                    'Pincode',
+                    'Address'
+                ]
+
+                for i in range (len(values)):
+                    print("Enter ", i+1, " to edit ", values[i])
+
+                choice = input("\nEnter which field you need to edit : ")
+
+                if choice == '1':
+                    updated_name = input("\nEnter the name : ")
+                
+                elif choice == '2':
+                    updated_email = input("\nEnter the email : ")
+
+                elif choice == '3':
+                    updated_dob = input("\nEnter the Date of Birth : ")
+
+                elif choice == '4':
+                    updated_phnum = input("\nEnter the Phone Number : ")
+
+                elif choice == '5':
+                    updated_password = input("\nEnter the password : ")
+
+                elif choice == '6':
+                    updated_state = input("\nEnter the state : ")
+
+                elif choice == '7':
+                    updated_city = input("\nEnter the city : ")
+
+                elif choice == '8':
+                    updated_pincode = input("\nEnter the pincode : ")
+
+                elif choice == '9':
+                    updated_address = input("\nEnter the address : ")
+
 
 app = EMSAPP()
 product_app = Product(conn)
