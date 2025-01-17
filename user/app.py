@@ -552,31 +552,49 @@ class EMSAPP:
 
                 if choice == '1':
                     updated_name = input("\nEnter the name : ")
+                    self.update_profile(updated_name, 'name', 'user', user_id )
                 
                 elif choice == '2':
                     updated_email = input("\nEnter the email : ")
+                    self.update_profile(updated_email, 'email', 'user', user_id )
 
                 elif choice == '3':
                     updated_dob = input("\nEnter the Date of Birth : ")
+                    self.update_profile(updated_dob, 'dob', 'user', user_id )
 
                 elif choice == '4':
                     updated_phnum = input("\nEnter the Phone Number : ")
+                    self.update_profile(updated_phnum, 'phone_number', 'user', user_id )
 
                 elif choice == '5':
                     updated_password = input("\nEnter the password : ")
+                    self.update_profile(updated_password, 'password', 'user', user_id )
 
                 elif choice == '6':
                     updated_state = input("\nEnter the state : ")
+                    self.update_profile(updated_state, 'state', 'user', user_id )
 
                 elif choice == '7':
                     updated_city = input("\nEnter the city : ")
+                    self.update_profile(updated_city, 'city', 'user', user_id )
 
                 elif choice == '8':
                     updated_pincode = input("\nEnter the pincode : ")
+                    self.update_profile(updated_pincode, 'pincode', 'user', user_id )
 
                 elif choice == '9':
                     updated_address = input("\nEnter the address : ")
+                    self.update_profile(updated_address, 'address', 'user', user_id )
 
+    def update_profile(new_value,column_name,table_name,user_id):
+        try:   
+            update_query = f"UPDATE {table_name} SET {column_name} = %s WHERE id = %s"
+           
+            cursor.execute(update_query, (new_value, user_id)) 
+            conn.commit()
+            print(f"\nUpdated successfully: {column_name} = {new_value}")
+        except Exception as e:
+            print(f"Error updating product: {e}")
 
 app = EMSAPP()
 product_app = Product(conn)
