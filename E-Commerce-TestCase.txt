@@ -1,0 +1,13 @@
+E-Commerce Test Case for User
+
+1. Create a new user and login in to the page
+2. Go to Edit Option, edit all the fields and verify it
+3. Search for products, add it to wishlish, cart and place an order
+4. Order a product, test the options replace and return functionality and verify it
+
+
+E-Commerce Test Case for Customer
+
+1. Add, view, update and delete products
+2. Add, view, update and delete offers to products
+3. Test the current and completed order, and changing order status

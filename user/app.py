@@ -65,6 +65,8 @@ class EMSAPP:
                     print("---------> ",product_action)
                 print("\n")
                 product_action_choice  = int(input("Enter your choice : "))
+                if product_action_choice < 0 or product_action_choice >= len(product_actions):
+                    print("\n<--------- Invalid Choice --------->\n")
                 if product_action_choice == 0:
                     print("\n<--------- Logging out... --------->\n")
                     break
@@ -119,20 +121,20 @@ class EMSAPP:
             else:
                 self.view_product_info(cart_list)
 
-            delete_choice = input("\nDo you want to remove any products from cart (y/n) : ")
+                delete_choice = input("\nDo you want to remove any products from cart (y/n) : ")
 
-            if delete_choice == "y" or delete_choice == "Y":
-                id = int(input("\nEnter the product id : "))
-                confirmation = input("\nAre you want to remove (y/n) : ")
-                if confirmation == 'y' or confirmation == 'Y':
-                    query = "DELETE from cart WHERE product_id = %s AND user_id = %s"
-                    with conn.cursor() as cart_cursor:
-                        cart_cursor.execute(query, (id, user_id))
-                        conn.commit()
-                        if cart_cursor.rowcount == 0:
-                            print("\n<--------- No matching product found in your cart --------->\n")
-                        else:
-                            print("\n<--------- Product successfully removed from your cart --------->\n")
+                if delete_choice == "y" or delete_choice == "Y":
+                    id = int(input("\nEnter the product id : "))
+                    confirmation = input("\nAre you want to remove (y/n) : ")
+                    if confirmation == 'y' or confirmation == 'Y':
+                        query = "DELETE from cart WHERE product_id = %s AND user_id = %s"
+                        with conn.cursor() as cart_cursor:
+                            cart_cursor.execute(query, (id, user_id))
+                            conn.commit()
+                            if cart_cursor.rowcount == 0:
+                                print("\n<--------- No matching product found in your cart --------->\n")
+                            else:
+                                print("\n<--------- Product successfully removed from your cart --------->\n")
                                     
         elif product_action_choice == 2:
             print("\n<--------- Your orders --------->\n")
@@ -158,6 +160,7 @@ class EMSAPP:
             
             conn = mysql.connector.connect(**config)
             order_mapping = {}
+            completed_orders = []
             with conn.cursor() as orders_cursor:
                 orders_cursor.execute(query, (user_id,))
                 order_info = orders_cursor.fetchall()
@@ -178,6 +181,8 @@ class EMSAPP:
                         f"Payment Status : {items[7]}",
                         f"Delivery     : {items[8]}"
                     ]
+                    if items[8] == "Completed":
+                        completed_orders.append(items[5])
                     order_mapping[items[5]] = order_details[1:]
                     order_table.add_column(column_title, order_details)
                     print(order_table, "\n")
@@ -186,6 +191,10 @@ class EMSAPP:
 
                 if is_exchange == 'Y' or is_exchange == 'y':
                     order_id = input("\nEnter the Order ID of the completed order : ")
+
+                    if order_id not in completed_orders:
+                        print("\n<--------- Invalid Order ID, Try Again :( --------->\n")
+                        return
 
                     exchange_options = [
                         "Press 1 to return the product",
@@ -257,11 +266,11 @@ class EMSAPP:
 
                         payment_completed = False
 
-                        if exchange_choice == 1:
-                            print("<--------- Replacement requested for the old product --------->")
+                        if replace_choice == 1:
+                            print("\n<--------- Replacement requested for the old product --------->")
                             payment_completed = True
 
-                        elif exchange_choice == 2:
+                        elif replace_choice == 2:
                             print("\n<--------- Search for the product to replace --------->\n")
 
                             product_found = product_app.search(True)
@@ -327,11 +336,11 @@ class EMSAPP:
                             with conn.cursor() as location_details:
                                 location_details.execute(query, (order_id,))
                                 location_info = location_details.fetchall()
-
-                            address = location_info[6]
-                            pincode = location_info[5]
-                            city = location_info[4]
-                            state = location_info[3]
+                            
+                            address = location_info[0][6]
+                            pincode = location_info[0][5]
+                            city = location_info[0][4]
+                            state = location_info[0][3]
 
                             print("\nAddress : ", address)
                             print("City    : ", city)
@@ -378,13 +387,13 @@ class EMSAPP:
                             
                             with conn.cursor() as update_order:
                                 update_order.execute(update_order_query, ["Replaced", order_id])
-                                update_order.commit()
+                                conn.commit()
                             
                                 update_order.execute(add_return_data, [replace_id, order_id, new_order_id, reason, "Pending"])
-                                update_order.commit()
+                                conn.commit()
 
                                 update_order.execute(add_new_orders, [new_order_id, user_id, amt, "Pending", "Completed", product_id])
-                                update_order.commit()
+                                conn.commit()
 
         elif product_action_choice == 3:
             print("\n<--------- Your wishlist details --------->\n")
@@ -414,20 +423,20 @@ class EMSAPP:
             else:
                 self.view_product_info(wishlist_list)
 
-            delete_choice = input("\nDo you want to remove any products from wishlist (y/n) : ")
+                delete_choice = input("\nDo you want to remove any products from wishlist (y/n) : ")
 
-            if delete_choice == "y" or delete_choice == "Y":
-                id = int(input("\nEnter the product id : "))
-                confirmation = input("\nAre you want to remove (y/n) : ")
-                if confirmation == 'y' or confirmation == 'Y':
-                    query = "DELETE from wishlist WHERE product_id = %s AND user_id = %s"
-                    with conn.cursor() as wishlist_cursor:
-                        wishlist_cursor.execute(query, (id, user_id))
-                        conn.commit()
-                        if wishlist_cursor.rowcount == 0:
-                            print("\n<--------- No matching product found in your wishlist --------->\n")
-                        else:
-                            print("\n<--------- Product successfully removed from your wishlist --------->\n")
+                if delete_choice == "y" or delete_choice == "Y":
+                    id = int(input("\nEnter the product id : "))
+                    confirmation = input("\nAre you want to remove (y/n) : ")
+                    if confirmation == 'y' or confirmation == 'Y':
+                        query = "DELETE from wishlist WHERE product_id = %s AND user_id = %s"
+                        with conn.cursor() as wishlist_cursor:
+                            wishlist_cursor.execute(query, (id, user_id))
+                            conn.commit()
+                            if wishlist_cursor.rowcount == 0:
+                                print("\n<--------- No matching product found in your wishlist --------->\n")
+                            else:
+                                print("\n<--------- Product successfully removed from your wishlist --------->\n")
 
         elif product_action_choice == 4:
             query = """
@@ -487,10 +496,10 @@ class EMSAPP:
             while (not product_found):
                 product_found = product_app.search(True)
             
-            buy_operation = input("Do you want to buy any of the displayed product (y/n) : ")
+            buy_operation = input("\nAre you interested in any of the displayed product (y/n) : ")
 
             if buy_operation == 'y' or buy_operation == 'Y':
-                product_id = input("\nChoose the product which you want to buy by entering its product ID : ")
+                product_id = input("\nChoose the product by entering its product ID : ")
                 product_app.view_product(product_id)
                 product_app.product_actions()
                 product_options = [
@@ -517,7 +526,6 @@ class EMSAPP:
             user_id, name, email, dob, phone, password, state, city, pincode, address = user_details
 
             print("\n<--------- Your Profile --------->\n")
-            print("User ID          : ", user_id)
             print("Name             : ", name)
             print("Email            : ", email)
             print("Date of Birth    : ", dob)
@@ -585,8 +593,11 @@ class EMSAPP:
                 elif choice == '9':
                     updated_address = input("\nEnter the address : ")
                     self.update_profile(updated_address, 'address', 'user', user_id )
+                
+                else:
+                    print("\n<--------- Invalid Choice --------->\n")
 
-    def update_profile(new_value,column_name,table_name,user_id):
+    def update_profile(self,new_value,column_name,table_name,user_id):
         try:   
             update_query = f"UPDATE {table_name} SET {column_name} = %s WHERE id = %s"
            
@@ -669,7 +680,7 @@ elif (choice == 2):
     app.addUser(details)
 
     query = """
-            SELECT id from users where email = %s and phone_number = %s
+            SELECT id from user where email = %s and phone_number = %s
             """
     cursor.execute(query, (email,phoneNum,))
     user_id = cursor.fetchone()

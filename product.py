@@ -262,7 +262,7 @@ class Product:
         query = """
                 SELECT * FROM discount WHERE product_id = %s
                 """
-        self.cursor.execute(query, tuple(id))
+        self.cursor.execute(query, (id, ))
         offers = self.cursor.fetchall()
 
         columns = [desc[0] for desc in self.cursor.description]

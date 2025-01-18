@@ -180,5 +180,5 @@ CREATE TABLE replace_table (
 
     -- Foreign Key Constraint
     CONSTRAINT fk_replace
-        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+        FOREIGN KEY (old_order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
