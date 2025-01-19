@@ -619,10 +619,10 @@ class Product:
                     order_id  = self.generate_order_id()
 
                     query = """
-                    INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status, product_id)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status, product_id, count)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                     """
-                    self.cursor.execute(query, [order_id, user_id, tot_amt, "Pending", "Completed", product_id])
+                    self.cursor.execute(query, [order_id, user_id, tot_amt, "Pending", "Completed", product_id, count])
                     self.conn.commit()
 
                     query = """
@@ -714,9 +714,10 @@ class Product:
                     print("\n<--------------------------->\n")
             else:
                 print("\nNo reviews available for this product.\n")
+        
         else:
             # Code to exit
-            pass
+            print("\n<--------- Invalid Choice !!! --------->\n")
 
     def view_product(self,product_id):
         query = """

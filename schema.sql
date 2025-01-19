@@ -182,3 +182,16 @@ CREATE TABLE replace_table (
     CONSTRAINT fk_replace
         FOREIGN KEY (old_order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
+
+ALTER TABLE orders
+ADD COLUMN count INT NOT NULL;
+
+CREATE TABLE cancel_table (
+    cancel_id VARCHAR(50) PRIMARY KEY,
+    order_id VARCHAR(30),
+    reason VARCHAR(255) NOT NULL,
+    
+    -- Foreign Key Constraint
+    CONSTRAINT fk_cancel
+        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);

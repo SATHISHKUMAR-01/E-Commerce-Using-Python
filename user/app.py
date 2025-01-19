@@ -56,6 +56,7 @@ class EMSAPP:
                 "Enter 3 to view wishlist",
                 "Enter 4 to go for search",
                 "Enter 5 to edit profile",
+                "Enter 6 to view wallet",
                 "Enter 0 to Logout"
             ]
 
@@ -161,6 +162,7 @@ class EMSAPP:
             conn = mysql.connector.connect(**config)
             order_mapping = {}
             completed_orders = []
+            pending_orders = []
             with conn.cursor() as orders_cursor:
                 orders_cursor.execute(query, (user_id,))
                 order_info = orders_cursor.fetchall()
@@ -181,12 +183,67 @@ class EMSAPP:
                         f"Payment Status : {items[7]}",
                         f"Delivery     : {items[8]}"
                     ]
-                    if items[8] == "Completed":
+                    order_dict = {
+                        "Company" : items[2],
+                        "Category" : items[3],
+                        "Sub Category" : items[4],
+                        "Order Id" : items[5],
+                        "Amount" : items[6],
+                        "Payment Status" : items[7],
+                        "Delivery"     : items[8] 
+                    }
+                    if items[8] != "Pending":
                         completed_orders.append(items[5])
-                    order_mapping[items[5]] = order_details[1:]
+                    else:
+                        pending_orders.append(items[5])
+                    order_mapping[items[5]] = order_dict
                     order_table.add_column(column_title, order_details)
                     print(order_table, "\n")
 
+                is_cancel = input("\nDo you want to cancel any orders (y/n) : ")
+
+                if is_cancel == 'Y' or is_cancel == 'y':
+                    order_id = input("\nEnter the Order ID to cancel the order : ")
+                    if order_id not in pending_orders:
+                        print("\n<--------- You can cancel only pending/current Orders, Try Again :( --------->\n")
+                        return
+                    
+                    cancel_reason = input("\nEnter the reason for your cancel : ")
+                    cancel_amt = order_mapping[order_id]["Amount"]
+
+                    query = """
+                    SELECT wallet_id, amount from wallet where user_id = %s
+                    """
+                    with conn.cursor() as wallet_details:
+                        wallet_details.execute(query, (user_id,))
+                        wallet_info = wallet_details.fetchall()
+
+                    wallet_id = str(wallet_info[0][0])
+                    wallet_amount = float(wallet_info[0][1])
+
+                    wallet_app.add_wallet_amt(wallet_amount,wallet_id,cancel_amt)
+
+                    characters = string.ascii_uppercase + string.digits
+                    cancel_id = ''.join(random.choices(characters, k=5))
+                    
+                    cancel_query  = """
+                    INSERT INTO cancel_table (cancel_id, order_id, reason)
+                    VALUES (%s, %s, %s)                           
+                    """
+
+                    update_order_query = """
+                    UPDATE orders SET order_status = %s WHERE order_id = %s
+                    """
+
+                    with conn.cursor() as cancel_order:
+                        cancel_order.execute(cancel_query, [cancel_id, order_id, cancel_reason])
+                        conn.commit()
+
+                        cancel_order.execute(update_order_query, ["Cancelled", order_id])
+                        conn.commit()
+
+                    print("\n<--------- Order Cancelled Succesfully !!! --------->\n")
+                
                 is_exchange = input("\nDo you want to return or replace any product (y/n) : ")
 
                 if is_exchange == 'Y' or is_exchange == 'y':
@@ -220,7 +277,7 @@ class EMSAPP:
                     wallet_id = str(wallet_info[0][0])
                     wallet_amount = float(wallet_info[0][1])
 
-                    order_amt = float(order_mapping[order_id][5].split(':')[1].strip())
+                    order_amt = float(order_mapping[order_id]["Amount"])
                     
                     if exchange_choice == 1:
                         reason = input("\nEnter the reason for your return : ")
@@ -265,6 +322,9 @@ class EMSAPP:
                             exchange_choice = int(input("\nEnter your choice of replacement : "))
 
                         payment_completed = False
+
+                        amt = 0
+                        product_id = -1
 
                         if replace_choice == 1:
                             print("\n<--------- Replacement requested for the old product --------->")
@@ -377,23 +437,27 @@ class EMSAPP:
 
                             add_return_data = """
                             INSERT INTO replace_table (replace_id, old_order_id, new_order_id, reason, return_status)
-                            VALUES (%s, %s, %s, %s)
+                            VALUES (%s, %s, %s, %s, %s)
                             """
 
                             add_new_orders = """
-                            INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status, product_id)
-                            VALUES (%s, %s, %s, %s, %s, %s)
+                                INSERT INTO orders (order_id, user_id, total_amount, order_status, payment_status, product_id)
+                                VALUES (%s, %s, %s, %s, %s, %s)
                             """
-                            
+
                             with conn.cursor() as update_order:
                                 update_order.execute(update_order_query, ["Replaced", order_id])
                                 conn.commit()
-                            
-                                update_order.execute(add_return_data, [replace_id, order_id, new_order_id, reason, "Pending"])
-                                conn.commit()
 
-                                update_order.execute(add_new_orders, [new_order_id, user_id, amt, "Pending", "Completed", product_id])
-                                conn.commit()
+                                if replace_choice == 2:
+                                    update_order.execute(add_new_orders, [new_order_id, user_id, amt, "Pending", "Completed", product_id])
+                                    conn.commit()
+
+                                    update_order.execute(add_return_data, [replace_id, order_id, new_order_id, reason, "Pending"])
+                                    conn.commit()
+                                else :
+                                    update_order.execute(add_return_data, [replace_id, order_id, "NONE", reason, "Pending"])
+                                    conn.commit()
 
         elif product_action_choice == 3:
             print("\n<--------- Your wishlist details --------->\n")
@@ -596,6 +660,29 @@ class EMSAPP:
                 
                 else:
                     print("\n<--------- Invalid Choice --------->\n")
+        
+        elif product_action_choice == 6:
+            
+            query = """
+            SELECT w.amount, w.wallet_id FROM wallet w
+            JOIN 
+                user u ON u.id = w.user_id            
+            WHERE w.user_id = %s       
+            """
+
+            cursor.execute(query, (user_id,))
+            wallet_details = cursor.fetchone()
+
+            wallet_amount, wallet_id = wallet_details
+
+            print("\n<--------- Wallet Details --------->\n")
+
+            print("Wallet Amount : ", wallet_amount)
+
+            is_recharge = input("\nDo you want to recharge your wallet (y/n) : ")
+
+            if is_recharge == "Y" or is_recharge == "y":
+                wallet_app.recharge_wallet(float(wallet_amount), wallet_id)
 
     def update_profile(self,new_value,column_name,table_name,user_id):
         try:   
