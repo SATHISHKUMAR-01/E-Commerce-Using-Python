@@ -82,9 +82,10 @@ if (choice == LOGIN):
             "8. View Discount/Offer of the products",
             "9. View Sales Details",
             "10. View current orders",
-            "11. View completed orders",
-            "12. Change order status to delivered",
-            "13. View return orders",
+            "11. View Dispatched orders",
+            "12. View completed orders",
+            "13. Change order status to delivered",
+            "14. View return orders",
             "0. Exit"
         ]
 
@@ -135,12 +136,15 @@ if (choice == LOGIN):
                     print("\n<--------- View Ongoing Orders --------->\n")
                     product_app.view_current_orders()
                 case 11 :
+                    print("\n<--------- View Dispatched Orders --------->\n")
+                    product_app.view_dispatched_orders()
+                case 12 :
                     print("\n<--------- View Completed Orders --------->\n")
                     product_app.view_completed_orders()
-                case 12 :
+                case 13 :
                     print("\n<--------- Change Order Status to delivered --------->\n")
                     product_app.change_order_status()
-                case 13 :
+                case 14 :
                     print("\n<--------- View Return orders --------->\n")
                     product_app.view_return_orders()
 

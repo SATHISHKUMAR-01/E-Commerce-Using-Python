@@ -1066,3 +1066,172 @@ class Product:
         print("Most  Bought Product : ", most_bought_product[0])
         print("Least Bought Product : ", least_bought_product[0])
         print("------------------------------------------------")
+
+    def view_dispatched_orders(self):
+
+        query = """
+
+        SELECT 
+            p.name AS product_name,
+            p.id AS product_id,
+            p.company,
+            p.category,
+            p.sub_category,
+
+            o.total_amount,
+            o.order_id,
+            o.user_id,
+
+            u.name,
+            u.email,
+            u.phone_number,
+            u.address,
+            u.city,
+            u.state,
+            u.pincode
+        
+        FROM 
+            orders o
+        JOIN 
+            products p ON o.product_id = p.id
+        JOIN 
+            user u ON o.user_id = u.id
+        WHERE
+            payment_status = %s AND order_status = %s
+        """
+
+        self.cursor.execute(query, ["Completed", "Dispatched"])
+        current_orders = self.cursor.fetchall()
+
+        if (len(current_orders) == 0):
+            print("\n<--------- No Pending orders :( --------->\n")
+        else:
+
+            for items in current_orders:
+                
+                orders_table = PrettyTable()
+                column_title = items[0]
+            
+                product_details = [
+                    f"Product ID   : {items[1]}",
+                    f"Company      : {items[2]}",
+                    f"Category     : {items[3]}",
+                    f"Sub Category : {items[4]}",
+                    "-----------------------------------------------------------------------------------",
+                    f"Order ID     : {items[6]}",
+                    f"Order Amount : {items[5]}",
+                    "-----------------------------------------------------------------------------------",
+                    f"Customer Name   : {items[8]}",
+                    f"Customer Email  : {items[9]}",
+                    f"Customer Ph.Num : {items[10]}",
+                    f"Address         : {items[11] + " " + items[12] + " ", items[13] + " " + items[13]}"
+
+                ]
+                orders_table.add_column(column_title, product_details)
+                print(orders_table, "\n")
+            
+            while(True):
+                is_dispatch = input("Did you want to mark any orders as delivered (y/n) : ")
+
+                if is_dispatch == 'n' or is_dispatch == 'N':
+                    self.change_order_status()
+
+    def view_replace_orders(self):
+        
+        query = """
+                SELECT 
+                    r.replace_id,
+                    r.reason,
+                    r.replace_status,
+
+                    r.old_order_id,
+                    o.user_id,
+                    o.total_amount,
+
+                    p.id AS product_id,
+                    p.company,
+                    p.category,
+                    p.sub_category,
+
+                    u.name,
+                    u.email,
+                    u.phone_number,
+                    u.address,
+                    u.city,
+                    u.state,
+                    u.pincode
+                    
+                FROM 
+                    replace_table r
+                JOIN 
+                    orders o ON o.order_id = r.old_order_id
+                JOIN 
+                    products p ON o.product_id = p.id
+                JOIN 
+                    user u ON o.user_id = u.id
+                WHERE 
+                    r.replace_status = %s
+                    AND 
+                    o.order_status = %s
+                """
+        
+        self.cursor.execute(query, ["Pending", "Replaced"])
+        return_orders = self.cursor.fetchall()
+
+        return_orders_info = {}
+
+        if (not return_orders):
+                print("\n<--------- No pending replace orders :) --------->\n")
+        else:
+            return_table = PrettyTable()
+            return_table.field_names = ["Field", "Value"]
+
+            # Iterate through the return orders
+            for items in return_orders:
+                # Map the items to the respective fields
+                return_details = {
+                    "Replace ID": items[0],
+                    "Order ID": items[3],
+                    "Product ID": items[6],
+                    "Company": items[7],
+                    "Category": items[8],
+                    "Sub Category": items[9],
+                    "Amount": items[5],
+                    "User ID": items[4],
+                    "Name": items[10],
+                    "Email": items[11],
+                    "Phone": items[12],
+                    "Address": items[13],
+                    "City": items[14],
+                    "State": items[15],
+                    "Pincode": items[16],
+                    "Replace Reason": items[1],
+                }
+                return_orders_info[return_details['Return ID']] = return_details
+                # Add each key-value pair to the table
+                return_table.clear_rows()  # Clear rows for the new item
+                for key, value in return_details.items():
+                    return_table.add_row([key, value])
+                
+                # Print the table for each return order
+                print(f"Details for Replace ID: {items[0]}")
+                print(return_table, "\n")
+            
+            ch = input("\nDo you want to close any replace orders (y/n) : ")
+
+            if (ch == 'y' or ch == 'Y'):
+                replace_id = input("\nEnter the Replace ID to close the order : ")
+
+                product_confirmation = input("\nDoes the product has been received (y/n) : ")
+
+                if product_confirmation == 'y' or product_confirmation == 'Y':
+                    query = """
+                    UPDATE replace_table SET replace_status = %s WHERE replace_id = %s
+                    """
+                    self.cursor.execute(query, ["Completed", replace_id ])
+                    self.conn.commit()
+
+                    print("\n<--------- Operation Completed Successfully --------->\n")
+
+                else:
+                    print("\n<--------- You cant close the replace order, without receiving the product --------->\n")
