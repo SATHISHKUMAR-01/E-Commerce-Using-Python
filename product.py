@@ -124,8 +124,13 @@ class Product:
 
             case 6 :
                 print("\n<--------- Update the count of the product --------->\n")
+                query = """
+                    SELECT count FROM products where id = %s
+                    """
+                self.cursor.execute(query, (product_id, ))
+                count =self.cursor.fetchone()
                 new_count = int(input("Enter the new count: "))
-                self.update(new_count,"count", "products", product_id)
+                self.update(new_count+count[0],"count", "products", product_id)
             
     def deleteProduct(self):
         # Code to delete a product
