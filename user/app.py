@@ -136,7 +136,9 @@ class EMSAPP:
                                 print("\n<--------- No matching product found in your cart --------->\n")
                             else:
                                 print("\n<--------- Product successfully removed from your cart --------->\n")
-                                    
+            
+                buy_product = input("\nDo you want to buy any products from cart (y/n) : ")
+
         elif product_action_choice == 2:
             print("\n<--------- Your orders --------->\n")
             query = """
