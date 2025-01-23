@@ -521,7 +521,7 @@ class Product:
                 return True
             else:
                 print("\nNo product found. Please try again!!!")
-                
+                            
         except Exception as e:
             print(f"\nError during search: {e}")
         

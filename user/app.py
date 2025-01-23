@@ -139,6 +139,10 @@ class EMSAPP:
             
                 buy_product = input("\nDo you want to buy any products from cart (y/n) : ")
 
+                if buy_product == "Y" or buy_product == "y":
+                    product_id =  input("\nChoose the product ID of the product saved in your cart : ")
+                    product_app.product_operations(1,product_id,user_id)
+
         elif product_action_choice == 2:
             print("\n<--------- Your orders --------->\n")
             query = """
@@ -504,6 +508,12 @@ class EMSAPP:
                             else:
                                 print("\n<--------- Product successfully removed from your wishlist --------->\n")
 
+                buy_product = input("\nDo you want to buy any products from wishlist (y/n) : ")
+
+                if buy_product == "Y" or buy_product == "y":
+                    product_id =  input("\nChoose the product ID of the product saved in your wishlist : ")
+                    product_app.product_operations(1,product_id,user_id)
+
         elif product_action_choice == 4:
             query = """
             WITH RankedData AS (
@@ -557,31 +567,40 @@ class EMSAPP:
             print ("\n<---------  Today Offers --------->\n")
             product_app.viewOffer()
 
+            go_to_products_page = True
+
             print("\n\n<--------- Search for the product name which you need --------->\n")
             product_found = product_app.search(True)
             while (not product_found):
                 product_found = product_app.search(True)
-            
-            buy_operation = input("\nAre you interested in any of the displayed product (y/n) : ")
+                is_exit = input("\nGo back from search (y/n) : ")
 
-            if buy_operation == 'y' or buy_operation == 'Y':
-                product_id = input("\nChoose the product by entering its product ID : ")
-                product_app.view_product(product_id)
-                product_app.product_actions()
-                product_options = [
-                    "Enter 1 to buy the product",
-                    "Enter 2 to add product to cart",
-                    "Enter 3 to add product to wishlist",
-                    "Enter 4 to add review comments",
-                    "Enter 5 to see reviews of the product",
-                    "Enter 0 to Exit"
-                ]
-                print("\n")
-                for product_option in product_options:
-                    print("---------> ",product_option)
-                print("\n")
-                user_options = int(input("\nEnter your choice : "))
-                product_app.product_operations(user_options,product_id,user_id)
+                if is_exit == 'Y' or is_exit == 'y':
+                    print("\n<--------- Exiting Search --------->\n")
+                    go_to_products_page = False
+                    break
+            
+            if go_to_products_page:
+                buy_operation = input("\nAre you interested in any of the displayed product (y/n) : ")
+
+                if buy_operation == 'y' or buy_operation == 'Y':
+                    product_id = input("\nChoose the product by entering its product ID : ")
+                    product_app.view_product(product_id)
+                    product_app.product_actions()
+                    product_options = [
+                        "Enter 1 to buy the product",
+                        "Enter 2 to add product to cart",
+                        "Enter 3 to add product to wishlist",
+                        "Enter 4 to add review comments",
+                        "Enter 5 to see reviews of the product",
+                        "Enter 0 to Exit"
+                    ]
+                    print("\n")
+                    for product_option in product_options:
+                        print("---------> ",product_option)
+                    print("\n")
+                    user_options = int(input("\nEnter your choice : "))
+                    product_app.product_operations(user_options,product_id,user_id)
 
         elif product_action_choice == 5:
             
