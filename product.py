@@ -578,7 +578,33 @@ class Product:
             self.cursor.execute(query, (product_id,))
             product_price = self.cursor.fetchone()
             price = float(product_price[0])
+
+
+            print("\n<--------- Checking for Discounts --------->\n")
+
+            query = """
+            SELECT * from discounts where product_id = %s
+            """
+            self.cursor.execute(query, (product_id,))
+            discount_details = self.cursor.fetchone()
+            
+            if (len(discount_details) == 0):
+                print("\n<--------- No Discounts found --------->\n")
+                discount_type = ""
+            else:
+                discount_id, offer_product_id, discount_type, buy_val, get_val, flat_percentage = discount_details
+
+            if discount_type == "D0002":
+                print("\n<--------- Flat ",flat_percentage,"% Offer --------->\n")
+                price = price - (  (flat_percentage/100) * price)
+                print("\n<--------- Final Product Price ", price," --------->\n")
+            
             tot_amt = count * price
+
+            if discount_type == "D0001":
+                print("\n<--------- Buy ", buy_val, " Get ", get_val, " --------->\n")
+                count = count * get_val
+                print("\n<--------- Extra ",  count - get_val, " products added --------->\n")
 
             print("\n<--------- Total Amount : ",tot_amt," --------->\n")
             
