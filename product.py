@@ -583,12 +583,12 @@ class Product:
             print("\n<--------- Checking for Discounts --------->\n")
 
             query = """
-            SELECT * from discounts where product_id = %s
+            SELECT * from discount where product_id = %s
             """
             self.cursor.execute(query, (product_id,))
             discount_details = self.cursor.fetchone()
             
-            if (len(discount_details) == 0):
+            if (not discount_details):
                 print("\n<--------- No Discounts found --------->\n")
                 discount_type = ""
             else:
@@ -603,8 +603,10 @@ class Product:
 
             if discount_type == "D0001":
                 print("\n<--------- Buy ", buy_val, " Get ", get_val, " --------->\n")
-                count = count * get_val
-                print("\n<--------- Extra ",  count - get_val, " products added --------->\n")
+                extra_prod = count
+                count = (count * get_val) + count
+                extra_prod = count - extra_prod
+                print("\n<--------- Extra ",  extra_prod, " products added --------->\n")
 
             print("\n<--------- Total Amount : ",tot_amt," --------->\n")
             
@@ -793,7 +795,8 @@ class Product:
             u.address,
             u.city,
             u.state,
-            u.pincode
+            u.pincode,
+            o.count
         
         FROM 
             orders o
@@ -825,11 +828,12 @@ class Product:
                     "-----------------------------------------------------------------------------------",
                     f"Order ID     : {items[6]}",
                     f"Order Amount : {items[5]}",
+                    f"Count        : {items[15]}",
                     "-----------------------------------------------------------------------------------",
                     f"Customer Name   : {items[8]}",
                     f"Customer Email  : {items[9]}",
                     f"Customer Ph.Num : {items[10]}",
-                    f"Address         : {items[11] + " " + items[12] + " ", items[13] + " " + items[13]}"
+                    f"Address         : {items[11] + " " + items[12] + " ", items[13] + " " + items[14]}"
 
                 ]
                 orders_table.add_column(column_title, product_details)

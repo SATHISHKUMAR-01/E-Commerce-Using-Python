@@ -156,7 +156,8 @@ class EMSAPP:
                     o.order_id,
                     o.total_amount,
                     o.payment_status,
-                    o.order_status
+                    o.order_status,
+                    o.count
                 FROM 
                     orders o
                 JOIN 
@@ -187,7 +188,8 @@ class EMSAPP:
                         f"Order Id     : {items[5]}",
                         f"Amount       : {items[6]}",
                         f"Payment Status : {items[7]}",
-                        f"Delivery     : {items[8]}"
+                        f"Delivery     : {items[8]}",
+                        f"Count        : {items[9]}"
                     ]
                     order_dict = {
                         "Company" : items[2],
@@ -196,7 +198,8 @@ class EMSAPP:
                         "Order Id" : items[5],
                         "Amount" : items[6],
                         "Payment Status" : items[7],
-                        "Delivery"     : items[8] 
+                        "Delivery"     : items[8],
+                        "Count"        : items[9]
                     }
                     if items[8] != "Pending":
                         completed_orders.append(items[5])
